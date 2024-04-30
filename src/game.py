@@ -3,12 +3,18 @@ from sys import exit
 from math import sqrt
 import cv2 # type: ignore
 
+
+
+# Screen should be passed as argument from menu to Game()
 pygame.init()
 screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN|pygame.SCALED)
 pygame.display.set_caption("YINSH")
 
 class Hexagone:
     def __init__(self, x, y, size, q, r):
+        self.state = "EMPTY" # EMPTY, RING_P1, RING_P2
+        self.marker = "EMPTY" # EMPTY, MARKER_P1, MARKER_P2
+
         self.center = (x, y)
         self.size = size
         self.width = 2*size
@@ -49,7 +55,6 @@ class Board:
         ]
 
         self.init_board()
-        print(self.get_lines(3, 9))
 
     def init_board(self):
         size = 48
@@ -162,20 +167,19 @@ class Board:
 
         return surface
 
-    
     def draw(self):
         surface = pygame.Surface((1080, 1080), pygame.SRCALPHA, 32)
         surface = surface.convert_alpha()
 
         for i in range(11):
             for j in range(11):
-                if self.board[i][j] != None:
+                if self.board[i][j] is not None:
                     x, y = self.board[i][j].center
                     neighbours = self.get_neighbours(i, j)
                     for neighbour in neighbours:
                         nx, ny = self.board[neighbour[0]][neighbour[1]].center
                         pygame.draw.line(surface, (0, 0, 0), (x, y), (nx, ny), 16)
-
+        
         for i in range(11):
             for j in range(11):
                 if self.board[i][j] != None:
@@ -186,15 +190,60 @@ class Board:
                         pygame.draw.line(surface, (255, 255, 255), (x, y), (nx, ny), 8)
 
         return surface
+    
+    def draw_player_elements(self, surface):
+        for i in range(11):
+            for j in range(11):
+                if self.board[i][j] != None:
+                    x, y = self.board[i][j].center
+
+                    if self.board[i][j].state == "RING_P1":
+                        pygame.draw.circle(surface, (0, 0, 255), (x, y), 26)  # Blue ring
+
+                    elif self.board[i][j].state == "RING_P2":
+                        pygame.draw.circle(surface, (255, 0, 0), (x, y), 26)  # Red ring
+                    
+                    if self.board[i][j].marker == "MARKER_P1":
+                        pygame.draw.circle(surface, (0, 0, 0), (x, y), 16)
+                        pygame.draw.circle(surface, (0, 0, 255), (x, y), 12)  # Blue marker
+
+                    elif self.board[i][j].marker == "MARKER_P2":
+                        pygame.draw.circle(surface, (0, 0, 0), (x, y), 16)
+                        pygame.draw.circle(surface, (255, 0, 0), (x, y), 12)  # Red marker
+        return surface
+
+class Player:
+    def __init__(self, name, color):
+        self.name = name
+        self.color = color
+        self.rings = []
+
+    def place_ring(self, hexagon):
+        if hexagon.state == "EMPTY":
+            hexagon.state = "RING_P" + self.name[-1]  # Assuming player's name is "PlayerX"
+            self.rings.append(hexagon)
+            return hexagon
+        else:
+            return False
+
+    def place_marker(self, hexagon):
+        if hexagon.state == "RING_P" + self.name[-1]:
+            hexagon.marker = "MARKER_P" + self.name[-1]  # Assuming player's name is "PlayerX"
+            return hexagon
+        else:
+            return False
 
 class Game:
-    def __init__(self, screen):
-        self.screen = screen
+    def __init__(self):
         self.clock = pygame.time.Clock()
         self.board = Board()
 
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
+
+        self.p1 = Player("Player1", "blue")
+        self.p2 = Player("Player2", "red")
+        self.player_to_play = self.p1
 
     def play_video(self, surface):
         success, video_image = self.video.read()
@@ -204,7 +253,7 @@ class Game:
         video_surf = pygame.image.frombuffer(video_image.tobytes(), video_image.shape[1::-1], "BGR")
         surface.blit(video_surf, (0, 0))
 
-    def run(self):
+    def run(self, screen):
         run = True
 
         while run:
@@ -214,19 +263,35 @@ class Game:
                     pygame.quit()
                     exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    # handle all game logic on click (LMAO c'est du caca mais ça marche) 
+                    # TODO Clean in functions to handle this
                     mouse_pos = pygame.mouse.get_pos()
                     i, j = self.board.get_hexagon_at_click(mouse_pos)
-                    print(f"Clicked hexagon coordinates: i={i}, j={j}")
+                    if i is None or j is None:
+                        continue
+                    selected_hexagon = self.board.board[i][j]
+                    if len(self.p1.rings) == 5 and len(self.p2.rings) == 5:
+                        move_function = self.player_to_play.place_marker
+                    else:
+                        move_function = self.player_to_play.place_ring
+                    move = move_function(selected_hexagon)
+                    if move:
+                        self.board.board[i][j] == move
+                        self.player_to_play = self.p1 if self.player_to_play == self.p2 else self.p2
+
 
             self.clock.tick(self.fps)
 
-            self.play_video(self.screen)
+            self.play_video(screen)
             surface_board = self.board.draw()
-            self.screen.blit(surface_board, (0, 0))
+            surface_board = self.board.draw_player_elements(surface_board)
+            screen.blit(surface_board, (0, 0))
+
+            # Draw hitboxes for debug purposes
             # surface_hexagons = self.board.draw_hexagons()
-            # self.screen.blit(surface_hexagons, (0, 0))
+            # screen.blit(surface_hexagons, (0, 0))
 
             pygame.display.flip()
 
 if __name__ == "__main__":
-    Game(screen).run()
+    Game().run(screen)
