@@ -35,9 +35,7 @@ class Board:
         for i in range(11):
             for j in range(11):
                 if self.board[i][j] == 1:
-                    q = j-5
-                    r = i-5
-                    self.board[i][j] = Hexagone(x, y, size, q, r)
+                    self.board[i][j] = Hexagone(x, y, size)
                 x += horiz
                 y += vert
             x = startx
@@ -60,12 +58,7 @@ class Board:
             (0, -1) 
         ]
 
-        neighbours_coords = []
-
-        for y, x in vector:
-            if 0 <= i+y < 11 and 0 <= j+x < 11 and self.board[i+y][j+x] != None:
-                neighbours_coords.append((i+y, j+x))
-        return neighbours_coords
+        return [(i+y, j+x) for y, x in vector if 0 <= i+y < 11 and 0 <= j+x < 11 and self.board[i+y][j+x] is not None]
     
     def get_lines(self, i: int, j: int) -> list[list[tuple[int, int]]]:
         """
@@ -82,22 +75,19 @@ class Board:
         left_lower_diagonal = left_lower_diagonal[::-1]
         right_lower_diagonal = self.get_cells_between(i, j, i, 10)
 
-        left_uper_diagonal = self.get_cells_between(0, 0, i, j)
-        right_uper_diagonal = self.get_cells_between(i, j, 0, 0)
-
         left_uper_diagonal = [(i, j)]
         right_uper_diagonal = [(i, j)]
         k, l = i, j
         while k < 10 and l > 0:
             k += 1
             l -= 1
-            if self.board[k][l] != None:
+            if self.board[k][l] is not None:
                 left_uper_diagonal += [(k, l)]
         k, l = i, j
         while k > 0 and l < 10:
             k -= 1
             l += 1
-            if self.board[k][l] != None:
+            if self.board[k][l] is not None:
                 right_uper_diagonal += [(k, l)]
 
         return [vertical_up, vertical_down, left_lower_diagonal, right_lower_diagonal, left_uper_diagonal, right_uper_diagonal]
@@ -112,11 +102,11 @@ class Board:
         :return: list[tuple(int, int)], List of coordinates of cells between the given coordinates, which are included.
         """
         if j==l:
-            return [(y, j) for y in range(min(i, k), max(i, k)+1) if self.board[y][j] != None]
+            return [(y, j) for y in range(min(i, k), max(i, k)+1) if self.board[y][j] is not None]
         elif i==k:
-            return [(i, x) for x in range(min(j, l), max(j, l)+1) if self.board[i][x] != None]
+            return [(i, x) for x in range(min(j, l), max(j, l)+1) if self.board[i][x] is not None]
         elif abs(i-k) == abs(j-l):
-            return [(y, x) for y, x in zip(range(max(i, k), min(i, k)-1, -1), range(min(j, l), max(j, l)+1)) if self.board[y][x] != None]
+            return [(y, x) for y, x in zip(range(max(i, k), min(i, k)-1, -1), range(min(j, l), max(j, l)+1)) if self.board[y][x] is not None]
         else:
             return None
     
@@ -129,7 +119,10 @@ class Board:
         """
         possible_cells = []
         lines = self.get_lines(i, j)
+
         for line in lines:
+            if line is None:
+                continue
             for k in range(1, len(line)):
                 coord_i, coord_j = line[k][0], line[k][1]
                 if self.board[coord_i][coord_j].state == "EMPTY" and self.board[coord_i][coord_j].marker == "EMPTY":
@@ -140,6 +133,46 @@ class Board:
                     break
         return possible_cells
     
+    def lines_to_check(self) -> list[list[tuple[int, int]]]:
+        """
+        Get the lines to check for a win condition.
+        :return: list[list[tuple(int, int)]], List of lines to check for a win condition.
+        """
+        lines = []
+
+        for i in range(11):
+            for j in range(7):
+                lines.append([(i, j), (i, j+1), (i, j+2), (i, j+3), (i, j+4)])
+        
+        for i in range(7):
+            for j in range(11):
+                lines.append([(i, j), (i+1, j), (i+2, j), (i+3, j), (i+4, j)])
+
+        # TODO Add diagonal lines
+        
+        return lines
+
+    def check_line_win(self, line: list[tuple[int, int]]) -> bool:
+        """
+        Check if a line contains 5 markers of the same player.
+        :param line: list[tuple(int, int)], List of coordinates of the line to check.
+        :return: bool, True if the line contains 5 markers of the same player, False otherwise.
+        """
+        markers = [self.board[i][j].marker for i, j in line if self.board[i][j] is not None]
+        return len(markers) == 5 and (("MARKER_P1" in markers and "MARKER_P2" not in markers) or ("MARKER_P2" in markers and "MARKER_P1" not in markers))
+
+    def check_win(self) -> str:
+        """
+        Check if a player has won the game.
+        :return: str, Name of the player who has won the game, or None if no player has won yet.
+        """
+        lines = self.lines_to_check()
+
+        for line in lines:
+            if self.check_line_win(line):
+                return "Player1" if "MARKER_P1" == line[0].marker else "Player2"
+        return None
+
     def get_hexagon_at_click(self, point: tuple[float, float]) -> tuple[int, int]:
         """
         Get the coordinates of the hexagon clicked on the board.
@@ -161,6 +194,7 @@ class Board:
         surface = pygame.Surface((1080, 1080), pygame.SRCALPHA, 32)
         surface = surface.convert_alpha()
 
+        # Draw background black thicker lines
         for i in range(11):
             for j in range(11):
                 if self.board[i][j] is not None:
@@ -170,6 +204,7 @@ class Board:
                         nx, ny = self.board[neighbour[0]][neighbour[1]].center
                         pygame.draw.line(surface, (0, 0, 0), (x, y), (nx, ny), 16)
         
+        # Draw white thinner lines on top of the black lines
         for i in range(11):
             for j in range(11):
                 if self.board[i][j] != None:

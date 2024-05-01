@@ -3,14 +3,12 @@ from math import sqrt
 
 class Hexagone:
 
-    def __init__(self, x: int, y: int, size: int, q: int, r: int) -> None:
+    def __init__(self, x: int, y: int, size: int) -> None:
         """
         Initialize a hexagon object with its properties.
         :param x: int, X-coordinate of the center of the hexagon on the pygame.Surface
         :param y: int, Y-coordinate of the center of the hexagon on the pygame.Surface
         :param size: int, Size of the hexagon, used to be displayed on the pygame.Surface
-        :param q: int, Q-coordinate of the hexagon in an Axial system.
-        :param r: int, R-coordinate of the hexagon in an Axial system.
         """
         self.state = "EMPTY" # EMPTY, RING_P1, RING_P2
         self.marker = "EMPTY" # EMPTY, MARKER_P1, MARKER_P2
@@ -19,10 +17,6 @@ class Hexagone:
         self.size = size
         self.width = 2*size
         self.height = sqrt(3)*size
-
-        self.q = q
-        self.r = r
-        self.s = -q - r
 
         # Positions of the 6 points of the Hexagon, used to be drawn, or calculate if we click inside the Hexagon, with pixel perfect precision.
         self.positions = [
