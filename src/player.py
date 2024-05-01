@@ -1,26 +1,29 @@
 from hexagone import Hexagone
 
 class Player:
-    def __init__(self, name: str, color: str) -> None:
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.color = color
         self.rings = []
-        self.ring_to_move = None
+        self.alignment = 0
 
-    def place_ring(self, hexagon: Hexagone) -> Hexagone:
-        if hexagon.state == "EMPTY":
-            hexagon.state = "RING_P" + self.name[-1]  # Assuming player's name is "PlayerX"
-            self.rings.append(hexagon)
-            return hexagon
-        else:
-            return None
-
-    def place_marker(self, hexagon: Hexagone) -> Hexagone:
-        if hexagon.state == "RING_P" + self.name[-1]:
-            hexagon.marker = "MARKER_P" + self.name[-1]  # Assuming player's name is "PlayerX"
-            return hexagon
-        else:
-            return None
+    def place_ring(self, position: tuple[int, int], board: list[list[Hexagone]]) -> None:
+        i, j = position
+        board[i][j].state = "RING_P" + self.name[-1]  # Assuming player's name is "PlayerX"
+        self.rings.append([i, j])
         
-    def move_ring(self, hexagon, board):
-        pass
+    def remove_ring(self, position: tuple[int, int], board: list[list[Hexagone]]) -> None:
+        i, j = position
+        board[i][j].state = "EMPTY"
+        self.rings.remove([i, j])
+        
+    def place_marker(self, position: tuple[int, int], board: list[list[Hexagone]]) -> None:
+        i, j = position
+        board[i][j].marker = "MARKER_P" + self.name[-1]  # Assuming player's name is "PlayerX"
+    
+    def remove_marker(self, position: tuple[int, int], board: list[list[Hexagone]]) -> None:
+        i, j = position
+        board[i][j].marker = "EMPTY"
+        
+    def move_ring(self, initial_position: tuple[int, int], final_position: tuple[int, int], board: list[list[Hexagone]]):
+        self.remove_ring(initial_position, board)
+        self.place_ring(final_position, board)
