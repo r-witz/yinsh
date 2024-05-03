@@ -5,6 +5,7 @@ class Player:
         self.name = name
         self.rings = []
         self.alignment = 0
+        self.marker_placed = None
 
     def place_ring(self, position: tuple[int, int], board: list[list[Hexagone]]) -> None:
         i, j = position

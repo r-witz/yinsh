@@ -133,6 +133,21 @@ class Board:
                     break
         return possible_cells
     
+    def flip_markers(self, i: int, j: int, k: int, l: int) -> None:
+        """
+        Flip markers between two hexagons on the board.
+        :param i: int, Row index of the first hexagon.
+        :param j: int, Column index of the first hexagon.
+        :param k: int, Row index of the second hexagon.
+        :param l: int, Column index of the second hexagon.
+        """
+        cells = self.get_cells_between(i, j, k, l)
+        cells.pop(0)
+        cells.pop(-1)
+        for cell in cells:
+            i, j = cell
+            self.board[i][j].marker = "MARKER_P2" if self.board[i][j].marker == "MARKER_P1" else "MARKER_P1" if self.board[i][j].marker == "MARKER_P2" else "EMPTY"
+    
     def lines_to_check(self) -> list[list[tuple[int, int]]]:
         """
         Get the lines to check for a win condition.
