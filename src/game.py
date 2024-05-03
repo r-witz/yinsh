@@ -1,7 +1,8 @@
 import pygame # type: ignore
 import cv2 # type: ignore
 from sys import exit
-from math import sqrt
+from random import choice
+from time import sleep
 
 from player import Player
 from board import Board
@@ -26,10 +27,38 @@ class Game:
         self.p1 = Player("Player1")
         self.p2 = Player("Player2")
         self.player_to_play = self.p1
+    
+    def has_won(self, player: Player) -> bool:
+        return player.alignment == self.alignement_to_win
 
     def play_background_music(self):
         pygame.mixer.music.load("assets/audio/piano-loop-3.mp3")
         pygame.mixer.music.play(-1)
+
+    def bot_turn(self):
+        are_rings_placed = len(self.p1.rings) == 5 and len(self.p2.rings) == 5 and self.p1.alignment == 0 and self.p2.alignment == 0
+
+        if are_rings_placed:
+            choosen_ring = choice(self.player_to_play.rings)
+            i, j = choosen_ring
+
+            self.player_to_play.place_marker((i, j), self.board.board)
+
+            valid_moves = self.board.valid_moves(i, j)
+            choosen_move = choice(valid_moves)
+
+            self.player_to_play.move_ring((i, j), choosen_move, self.board.board)
+            self.board.flip_markers(i, j, choosen_move[0], choosen_move[1])
+            self.player_to_play = self.p2 if self.player_to_play == self.p1 else self.p1
+        else:
+            while True:
+                i = choice(range(11))
+                j = choice(range(11))
+                if self.board.board[i][j] is not None and self.board.board[i][j].state == "EMPTY":
+                    break
+
+            self.player_to_play.place_ring((i, j), self.board.board)
+            self.player_to_play = self.p2 if self.player_to_play == self.p1 else self.p1
 
     def game_turn(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -65,6 +94,9 @@ class Game:
                 self.player_to_play = self.p2 if self.player_to_play == self.p1 else self.p1
 
     def get_inputs(self):
+        if self.gamemode == "AI" and self.player_to_play == self.p2:
+            self.bot_turn()
+
         for event in pygame.event.get():
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
@@ -89,7 +121,7 @@ class Game:
     def run(self, screen):
         self.play_background_music()
 
-        while True:
+        while not self.has_won(self.p1) and not self.has_won(self.p2):
             self.clock.tick(self.fps)
             
             self.get_inputs()
@@ -99,4 +131,4 @@ class Game:
             pygame.display.flip()
 
 if __name__ == "__main__":
-    Game("Local", "Normal").run(screen)
+    Game("AI", "Normal").run(screen)
