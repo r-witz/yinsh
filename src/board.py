@@ -21,6 +21,24 @@ class Board:
 
         self.init_board()
 
+        self.ring_img_p1 = pygame.image.load("assets/graphics/rings/RING_P1.png")
+        self.ring_img_p2 = pygame.image.load("assets/graphics/rings/RING_P2.png")
+        self.ring_img_p1 = self.ring_img_p1.convert_alpha()
+        self.ring_img_p2 = self.ring_img_p2.convert_alpha()
+        self.ring_img_p1 = pygame.transform.scale(self.ring_img_p1, (65, 65))
+        self.ring_img_p2 = pygame.transform.scale(self.ring_img_p2, (65, 65))
+        self.ring_rect_p1 = self.ring_img_p1.get_rect(center=(0, 0))
+        self.ring_rect_p2 = self.ring_img_p2.get_rect(center=(0, 0))
+
+        self.marker_img_p1 = pygame.image.load("assets/graphics/markers/MARKER_P1.png")
+        self.marker_img_p2 = pygame.image.load("assets/graphics/markers/MARKER_P2.png")
+        self.marker_img_p1 = self.marker_img_p1.convert_alpha()
+        self.marker_img_p2 = self.marker_img_p2.convert_alpha()
+        self.marker_img_p1 = pygame.transform.scale(self.marker_img_p1, (65, 65))
+        self.marker_img_p2 = pygame.transform.scale(self.marker_img_p2, (65, 65))
+        self.marker_rect_p1 = self.marker_img_p1.get_rect(center=(0, 0))
+        self.marker_rect_p2 = self.marker_img_p2.get_rect(center=(0, 0))
+
     def init_board(self) -> None:
         """
         Initialize the board with Hexagons.
@@ -243,16 +261,14 @@ class Board:
                     x, y = self.board[i][j].center
 
                     if self.board[i][j].state == "RING_P1":
-                        pygame.draw.circle(surface, (0, 0, 255), (x, y), 26)  # Blue ring
+                        surface.blit(self.ring_img_p1, self.ring_rect_p1.move(x, y))
 
                     elif self.board[i][j].state == "RING_P2":
-                        pygame.draw.circle(surface, (255, 0, 0), (x, y), 26)  # Red ring
+                        surface.blit(self.ring_img_p2, self.ring_rect_p2.move(x, y))
                     
                     if self.board[i][j].marker == "MARKER_P1":
-                        pygame.draw.circle(surface, (0, 0, 0), (x, y), 16)
-                        pygame.draw.circle(surface, (0, 0, 255), (x, y), 12)  # Blue marker
+                        surface.blit(self.marker_img_p1, self.marker_rect_p1.move(x, y))
 
                     elif self.board[i][j].marker == "MARKER_P2":
-                        pygame.draw.circle(surface, (0, 0, 0), (x, y), 16)
-                        pygame.draw.circle(surface, (255, 0, 0), (x, y), 12)  # Red marker
+                        surface.blit(self.marker_img_p2, self.marker_rect_p2.move(x, y))
         return surface
