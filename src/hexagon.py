@@ -1,7 +1,7 @@
 from pygame import Vector2
 from math import sqrt
 
-class Hexagone:
+class Hexagon:
 
     def __init__(self, x: int, y: int, size: int) -> None:
         """

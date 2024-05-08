@@ -1,7 +1,7 @@
 import pygame
 from math import sqrt
 
-from hexagone import Hexagone
+from hexagon import Hexagon
 
 class Board:
     def __init__(self) -> None:
@@ -35,7 +35,7 @@ class Board:
         for i in range(11):
             for j in range(11):
                 if self.board[i][j] == 1:
-                    self.board[i][j] = Hexagone(x, y, size)
+                    self.board[i][j] = Hexagon(x, y, size)
                 x += horiz
                 y += vert
             x = startx
