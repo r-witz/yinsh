@@ -1,7 +1,9 @@
 import pygame
 import cv2
+
 from sys import exit
 from random import choice, randint
+
 from player import Player
 from board import Board
 from hexagon import Hexagon
@@ -23,14 +25,30 @@ class Game:
         self.difficulty = difficulty
         self.alignement_to_win = 1 if self.difficulty == "Blitz" else 3
 
-        self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
-        self.fps = self.video.get(cv2.CAP_PROP_FPS)
-
         self.board = Board()
         self.p1 = Player("Player1")
         self.p2 = Player("Player2")
         self.player_to_play = self.p1
         self.rings_placed = False
+
+        self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
+        self.fps = self.video.get(cv2.CAP_PROP_FPS)
+
+        # Load title image
+        self.title = pygame.image.load("assets/graphics/logo/Yinsh.png")
+        self.title = self.title.convert_alpha()
+        self.title = pygame.transform.scale(self.title, (374, 96))
+
+        # Load rings images for scores
+        self.empty_ring = pygame.image.load("assets/graphics/rings/RING_EMPTY.png")
+        self.ring_p1 = pygame.image.load("assets/graphics/rings/RING_P1.png")
+        self.ring_p2 = pygame.image.load("assets/graphics/rings/RING_P2.png")
+        self.empty_ring = self.empty_ring.convert_alpha()
+        self.ring_p1 = self.ring_p1.convert_alpha()
+        self.ring_p2 = self.ring_p2.convert_alpha()
+        self.empty_ring = pygame.transform.scale(self.empty_ring, (100, 100))
+        self.ring_p1 = pygame.transform.scale(self.ring_p1, (100, 100))
+        self.ring_p2 = pygame.transform.scale(self.ring_p2, (100, 100))
 
     def has_won(self, player: Player) -> bool:
         """
@@ -46,6 +64,7 @@ class Game:
         """
         pygame.mixer.music.load("assets/audio/piano-loop-3.mp3")
         pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0)
 
     def bot_turn(self) -> None:
         """
@@ -182,6 +201,31 @@ class Game:
         video_surf = pygame.image.frombuffer(video_image.tobytes(), video_image.shape[1::-1], "BGR")
         surface.blit(video_surf, (0, 0))
 
+    def draw_score(self, screen: pygame.Surface) -> None:
+        """
+        Draw the score of the game on the screen
+        :param screen: pygame.Surface, the surface to display the score on
+        """
+        for i in range(self.alignement_to_win):
+            screen.blit(self.empty_ring, (900 + i * 120, 950))
+
+        for i in range(self.p1.alignment):
+            screen.blit(self.ring_p1, (900 + i * 120, 950))
+
+        for i in range(self.alignement_to_win):
+            screen.blit(self.empty_ring, (1750 - i * 120, 950))
+
+        for i in range(self.p2.alignment):
+            screen.blit(self.ring_p2, (1750 - i * 120, 950))
+
+    def draw_ui(self, screen: pygame.Surface) -> None:
+        """
+        Draw the UI on the screen
+        :param screen: pygame.Surface, the surface to display the UI on
+        """
+        screen.blit(self.title, (375, 90))
+        self.draw_score(screen)
+
     def draw_board(self, screen: pygame.Surface) -> None:
         """
         Draw the game board on the screen
@@ -201,6 +245,7 @@ class Game:
             self.clock.tick(self.fps)
             self.get_inputs()
             self.play_background_video(screen)
+            self.draw_ui(screen)
             self.draw_board(screen)
             pygame.display.flip()
 

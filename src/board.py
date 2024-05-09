@@ -1,4 +1,5 @@
 import pygame
+
 from math import sqrt
 
 from hexagon import Hexagon
@@ -21,6 +22,7 @@ class Board:
 
         self.init_board()
 
+        # Load images for rings
         self.ring_img_p1 = pygame.image.load("assets/graphics/rings/RING_P1.png")
         self.ring_img_p2 = pygame.image.load("assets/graphics/rings/RING_P2.png")
         self.ring_img_p1 = self.ring_img_p1.convert_alpha()
@@ -30,6 +32,7 @@ class Board:
         self.ring_rect_p1 = self.ring_img_p1.get_rect(center=(0, 0))
         self.ring_rect_p2 = self.ring_img_p2.get_rect(center=(0, 0))
 
+        # Load images for markers
         self.marker_img_p1 = pygame.image.load("assets/graphics/markers/MARKER_P1.png")
         self.marker_img_p2 = pygame.image.load("assets/graphics/markers/MARKER_P2.png")
         self.marker_img_p1 = self.marker_img_p1.convert_alpha()
