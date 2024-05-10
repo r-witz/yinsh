@@ -195,7 +195,7 @@ class Board:
         :return: bool, True if the line contains 5 markers of the same player, False otherwise.
         """
         markers = [self.board[i][j].marker for i, j in line if self.board[i][j] is not None]
-        return len(markers) == 5 and (("MARKER_P1" in markers and "MARKER_P2" not in markers) or ("MARKER_P2" in markers and "MARKER_P1" not in markers))
+        return len(markers) == 5 and markers.count("MARKER_P1") == 5 or markers.count("MARKER_P2") == 5
 
     def check_win(self) -> str:
         """
@@ -203,11 +203,12 @@ class Board:
         :return: str, Name of the player who has won the game, or None if no player has won yet.
         """
         lines = self.lines_to_check()
+        aligned_lines = []
 
         for line in lines:
             if self.check_line_win(line):
-                return "Player1" if "MARKER_P1" == line[0].marker else "Player2"
-        return None
+                aligned_lines.append(line)
+        return None if len(aligned_lines) == 0 else aligned_lines[0]
 
     def get_hexagon_at_click(self, point: tuple[float, float]) -> tuple[int, int]:
         """

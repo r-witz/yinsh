@@ -30,6 +30,8 @@ class Game:
         self.p2 = Player("Player2")
         self.player_to_play = self.p1
         self.rings_placed = False
+        self.alignement_done = None
+        self.winner = None
 
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
@@ -121,9 +123,9 @@ class Game:
         i, j = self.board.get_hexagon_at_click(mouse_pos)
         if i is None and j is None:
             return None
-        self.handle_player_turn(i, j)
+        self.player_turn(i, j)
 
-    def handle_player_turn(self, i: int, j: int) -> None:
+    def player_turn(self, i: int, j: int) -> None:
         """
         Handle the actions a player can perform during their turn
         :param i: int, the row index of the clicked hexagon
@@ -132,11 +134,13 @@ class Game:
         player_to_play_name = self.player_to_play.name
         clicked_hex = self.board.board[i][j]
         if not self.rings_placed:
-            self.handle_ring_placement(i, j, clicked_hex)
+            self.ring_placement(i, j, clicked_hex)
+        elif self.alignement_done:
+            self.ring_removal(i, j, clicked_hex, self.alignement_done)
         else:
-            self.handle_marker_placement_and_ring_movement(i, j, player_to_play_name, clicked_hex)
+            self.marker_placement_and_ring_movement(i, j, player_to_play_name, clicked_hex)
 
-    def handle_ring_placement(self, i: int, j: int, clicked_hex: Hexagon) -> None:
+    def ring_placement(self, i: int, j: int, clicked_hex: Hexagon) -> None:
         """
         Handle the placement of a ring on the board
         :param i: int, the row index of the clicked hexagon
@@ -148,7 +152,21 @@ class Game:
             self.check_if_rings_placed()
             self.switch_player()
 
-    def handle_marker_placement_and_ring_movement(self, i: int, j: int, player_to_play_name: str, clicked_hex: Hexagon) -> None:
+    def ring_removal(self, i: int, j: int, clicked_hex: Hexagon, player: Player) -> None:
+        """
+        Handle the removal of a ring from the board
+        :param i: int, the row index of the clicked hexagon
+        :param j: int, the column index of the clicked hexagon
+        :param clicked_hex: Hexagon, the clicked hexagon
+        """
+        if clicked_hex.state == "RING_P" + player.name[-1]:
+            player.remove_ring((i, j), self.board.board)
+            player.alignment += 1
+            self.alignement_done = None
+            self.check_alignements()
+            self.winner = player if self.has_won(player) else None
+
+    def marker_placement_and_ring_movement(self, i: int, j: int, player_to_play_name: str, clicked_hex: Hexagon) -> None:
         """
         Handle the placement of a marker and the movement of a ring on the board
         :param i: int, the row index of the clicked hexagon
@@ -160,9 +178,9 @@ class Game:
             self.player_to_play.place_marker((i, j), self.board.board)
             self.player_to_play.marker_placed = (i, j)
         elif self.player_to_play.marker_placed:
-            self.handle_ring_movement(i, j)
+            self.ring_movement(i, j)
 
-    def handle_ring_movement(self, i: int, j: int) -> None:
+    def ring_movement(self, i: int, j: int) -> None:
         """
         Handle the movement of a ring on the board
         :param i: int, the row index of the clicked hexagon
@@ -175,6 +193,22 @@ class Game:
             self.board.flip_markers(i_marker, j_marker, i, j)
             self.player_to_play.marker_placed = None
             self.switch_player()
+            self.check_alignements()
+
+    def check_alignements(self) -> None:
+        """
+        Check if a player has made an alignment
+        """
+        alignements = self.board.check_win()
+
+        if alignements:
+            i, j = alignements[0]
+            alignement_player = self.p1 if self.board.board[i][j].marker == "MARKER_P1" else self.p2
+
+            for i, j in alignements:
+                alignement_player.remove_marker((i, j), self.board.board)
+
+            self.alignement_done = alignement_player   
 
     def get_inputs(self) -> None:
         """
@@ -241,7 +275,7 @@ class Game:
         :param screen: pygame.Surface, the surface to display the game on
         """
         self.play_background_music()
-        while not self.has_won(self.p1) and not self.has_won(self.p2):
+        while not self.winner:
             self.clock.tick(self.fps)
             self.get_inputs()
             self.play_background_video(screen)
@@ -250,4 +284,4 @@ class Game:
             pygame.display.flip()
 
 if __name__ == "__main__":
-    Game("AI", "Normal").run(screen)
+    Game("Local", "Normal").run(screen)
