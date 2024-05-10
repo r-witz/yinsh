@@ -184,8 +184,13 @@ class Board:
             for j in range(11):
                 lines.append([(i, j), (i+1, j), (i+2, j), (i+3, j), (i+4, j)])
 
-        # TODO Add diagonal lines
-        
+        diagonal_start = [(6, 0), (7, 0), (8, 0), (9, 0), (9, 1), (10, 1), (10, 2), (10, 3), (10, 4)]
+        for i, j in diagonal_start:
+            while i-4 >= 0 and j+4 < 11:
+                lines.append([(i, j), (i-1, j+1), (i-2, j+2), (i-3, j+3), (i-4, j+4)])
+                i -= 1
+                j += 1
+
         return lines
 
     def check_line_win(self, line: list[tuple[int, int]]) -> bool:
