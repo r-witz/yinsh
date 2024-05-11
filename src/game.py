@@ -52,6 +52,33 @@ class Game:
         self.ring_p1 = pygame.transform.scale(self.ring_p1, (100, 100))
         self.ring_p2 = pygame.transform.scale(self.ring_p2, (100, 100))
 
+        # Load indicators images
+        self.blue_place_ring = pygame.image.load("assets/graphics/indicators/BLUE_PLACE_RING.png")
+        self.blue_put_marker = pygame.image.load("assets/graphics/indicators/BLUE_PUT_MARKER.png")
+        self.blue_move_ring = pygame.image.load("assets/graphics/indicators/BLUE_MOVE_RING.png")
+        self.blue_remove_ring = pygame.image.load("assets/graphics/indicators/BLUE_REMOVE_RING.png")
+        self.red_place_ring = pygame.image.load("assets/graphics/indicators/RED_PLACE_RING.png")
+        self.red_put_marker = pygame.image.load("assets/graphics/indicators/RED_PUT_MARKER.png")
+        self.red_move_ring = pygame.image.load("assets/graphics/indicators/RED_MOVE_RING.png")
+        self.red_remove_ring = pygame.image.load("assets/graphics/indicators/RED_REMOVE_RING.png")
+        self.blue_place_ring = self.blue_place_ring.convert_alpha()
+        self.blue_put_marker = self.blue_put_marker.convert_alpha()
+        self.blue_move_ring = self.blue_move_ring.convert_alpha()
+        self.blue_remove_ring = self.blue_remove_ring.convert_alpha()
+        self.red_place_ring = self.red_place_ring.convert_alpha()
+        self.red_put_marker = self.red_put_marker.convert_alpha()
+        self.red_move_ring = self.red_move_ring.convert_alpha()
+        self.red_remove_ring = self.red_remove_ring.convert_alpha()
+        self.blue_place_ring = pygame.transform.scale(self.blue_place_ring, (360, 104))
+        self.blue_put_marker = pygame.transform.scale(self.blue_put_marker, (360, 104))
+        self.blue_move_ring = pygame.transform.scale(self.blue_move_ring, (360, 104))
+        self.blue_remove_ring = pygame.transform.scale(self.blue_remove_ring, (360, 104))
+        self.red_place_ring = pygame.transform.scale(self.red_place_ring, (360, 104))
+        self.red_put_marker = pygame.transform.scale(self.red_put_marker, (360, 104))
+        self.red_move_ring = pygame.transform.scale(self.red_move_ring, (360, 104))
+        self.red_remove_ring = pygame.transform.scale(self.red_remove_ring, (360, 104))
+
+
     def has_won(self, player: Player) -> bool:
         """
         Check if a player has won the game
@@ -66,7 +93,6 @@ class Game:
         """
         pygame.mixer.music.load("assets/audio/piano-loop-3.mp3")
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(0)
 
     def bot_turn(self) -> None:
         """
@@ -252,6 +278,33 @@ class Game:
         for i in range(self.p2.alignment):
             screen.blit(self.ring_p2, (1750 - i * 120, 950))
 
+    def draw_indcators(self, screen: pygame.Surface) -> None:
+        """
+        Draw the indicators on the screen
+        :param screen: pygame.Surface, the surface to display the indicators on
+        """
+        if self.rings_placed:
+            if self.alignement_done:
+                if self.alignement_done == self.p1:
+                    screen.blit(self.blue_remove_ring, (1200, 800))
+                else:
+                    screen.blit(self.red_remove_ring, (1200, 800))
+            elif self.player_to_play == self.p1 and self.player_to_play.marker_placed is None:
+                if self.player_to_play.marker_placed is None:
+                    screen.blit(self.blue_put_marker, (1200, 800))
+                elif self.player_to_play.marker_placed is not None:
+                    screen.blit(self.blue_move_ring, (1200, 800))
+            else: 
+                if self.player_to_play.marker_placed is None:
+                    screen.blit(self.red_put_marker, (1200, 800))
+                elif self.player_to_play.marker_placed is not None:
+                    screen.blit(self.red_move_ring, (1200, 800))
+        else:
+            if self.player_to_play == self.p1:
+                screen.blit(self.blue_place_ring, (1200, 800))
+            else:
+                screen.blit(self.red_place_ring, (1200, 800))
+
     def draw_ui(self, screen: pygame.Surface) -> None:
         """
         Draw the UI on the screen
@@ -259,6 +312,7 @@ class Game:
         """
         screen.blit(self.title, (375, 90))
         self.draw_score(screen)
+        self.draw_indcators(screen)
 
     def draw_board(self, screen: pygame.Surface) -> None:
         """
