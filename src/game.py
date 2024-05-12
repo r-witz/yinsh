@@ -36,6 +36,12 @@ class Game:
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
 
+        self.load_images()
+
+    def load_images(self) -> None:
+        """
+        Load the images for the game
+        """
         # Load title image
         self.title = pygame.image.load("assets/graphics/logo/Yinsh.png")
         self.title = self.title.convert_alpha()
@@ -78,6 +84,17 @@ class Game:
         self.red_move_ring = pygame.transform.scale(self.red_move_ring, (360, 104))
         self.red_remove_ring = pygame.transform.scale(self.red_remove_ring, (360, 104))
 
+    def replay(self) -> None:
+        """
+        Replay the game
+        """
+        self.board = Board()
+        self.p1 = Player("Player1")
+        self.p2 = Player("Player2")
+        self.player_to_play = self.p1
+        self.rings_placed = False
+        self.alignement_done = None
+        self.winner = None
 
     def has_won(self, player: Player) -> bool:
         """
@@ -289,15 +306,15 @@ class Game:
                     screen.blit(self.blue_remove_ring, (1200, 800))
                 else:
                     screen.blit(self.red_remove_ring, (1200, 800))
-            elif self.player_to_play == self.p1 and self.player_to_play.marker_placed is None:
+            elif self.player_to_play == self.p1:
                 if self.player_to_play.marker_placed is None:
                     screen.blit(self.blue_put_marker, (1200, 800))
-                elif self.player_to_play.marker_placed is not None:
+                else:
                     screen.blit(self.blue_move_ring, (1200, 800))
             else: 
                 if self.player_to_play.marker_placed is None:
                     screen.blit(self.red_put_marker, (1200, 800))
-                elif self.player_to_play.marker_placed is not None:
+                else:
                     screen.blit(self.red_move_ring, (1200, 800))
         else:
             if self.player_to_play == self.p1:
