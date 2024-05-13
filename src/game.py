@@ -4,13 +4,9 @@ import cv2
 from sys import exit
 from random import choice, randint
 
-from player import Player
-from board import Board
-from hexagon import Hexagon
-
-pygame.init()
-screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN|pygame.SCALED)
-pygame.display.set_caption("YINSH")
+from src.player import Player
+from src.board import Board
+from src.hexagon import Hexagon
 
 class Game:
     def __init__(self, gamemode: str, difficulty: str) -> None:
@@ -353,6 +349,3 @@ class Game:
             self.draw_ui(screen)
             self.draw_board(screen)
             pygame.display.flip()
-
-if __name__ == "__main__":
-    Game("Local", "Normal").run(screen)

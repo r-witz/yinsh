@@ -2,7 +2,7 @@ import pygame
 
 from math import sqrt
 
-from hexagon import Hexagon
+from src.hexagon import Hexagon
 
 class Board:
     def __init__(self) -> None:

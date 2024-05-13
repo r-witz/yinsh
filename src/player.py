@@ -1,4 +1,4 @@
-from hexagon import Hexagon
+from src.hexagon import Hexagon
 
 class Player:
     def __init__(self, name: str) -> None:
