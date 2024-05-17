@@ -193,29 +193,30 @@ class Board:
 
         return lines
 
-    def check_line_win(self, line: list[tuple[int, int]]) -> bool:
+    def check_line_win(self, line: list[tuple[int, int]], marker) -> bool:
         """
         Check if a line contains 5 markers of the same player.
         :param line: list[tuple(int, int)], List of coordinates of the line to check.
         :return: bool, True if the line contains 5 markers of the same player, False otherwise.
         """
         markers = [self.board[i][j].marker for i, j in line if self.board[i][j] is not None]
-        return len(markers) == 5 and markers.count("MARKER_P1") == 5 or markers.count("MARKER_P2") == 5
+        return len(markers) == 5 and markers.count(marker) == 5
 
-    def check_win(self) -> str:
+    def check_win(self, player) -> str:
         """
         Check if a player has won the game.
         :return: str, Name of the player who has won the game, or None if no player has won yet.
         """
+        player = "MARKER_P" + player[-1]
         lines = self.lines_to_check()
         aligned_lines = []
 
         for line in lines:
-            if self.check_line_win(line):
+            if self.check_line_win(line, player):
                 aligned_lines.append(line)
-        return None if len(aligned_lines) == 0 else aligned_lines[0]
+        return None if len(aligned_lines) == 0 else aligned_lines
 
-    def get_hexagon_at_click(self, point: tuple[float, float]) -> tuple[int, int]:
+    def get_hexagon(self, point: tuple[float, float]) -> tuple[int, int]:
         """
         Get the coordinates of the hexagon clicked on the board.
         :param point: tuple(float, float), Coordinates (x, y) of the clicked point.
