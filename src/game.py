@@ -313,6 +313,18 @@ class Game:
         self.draw_score(screen)
         self.draw_alignement_preview(screen)
 
+    def draw_move_preview(self, screen: pygame.Surface) -> None:
+        """
+        Draw a preview of the possible moves for the player
+        :param screen: pygame.Surface, the surface to display the preview on
+        """
+        if self.player_to_play.marker_placed is not None:
+            i, j = self.player_to_play.marker_placed
+            valid_moves = self.board.valid_moves(i, j)
+            for move in valid_moves:
+                x, y = self.board.board[move[0]][move[1]].center
+                pygame.draw.circle(screen, (100, 100, 100), (x, y), 14)
+
     def draw_board(self, screen: pygame.Surface) -> None:
         """
         Draw the game board on the screen
@@ -320,6 +332,7 @@ class Game:
         """
         surface_board = self.board.draw_board()
         surface_board = self.board.draw_player_elements(surface_board)
+        self.draw_move_preview(surface_board)
         screen.blit(surface_board, (0, 0))
 
     def run(self, screen: pygame.Surface) -> None:
