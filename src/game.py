@@ -28,7 +28,8 @@ class Game:
         self.rings_placed = False
         self.ring_removal = False
         self.alignements = None
-        self.winner = None
+        self.alignement_player = None
+        self.winner = None # None if draw, Player if win
 
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
@@ -131,9 +132,9 @@ class Game:
         if not self.rings_placed:
             self.ring_placement(i, j, clicked_hex)
         elif self.ring_removal:
-            self.remove_ring(i, j, self.player_to_play)
+            self.remove_ring(i, j, self.alignement_player)
         elif self.alignements is not None:
-            self.remove_alignement(i, j, self.player_to_play)
+            self.remove_alignement(i, j, self.alignement_player)
         else:
             self.marker_placement_and_ring_movement(i, j, self.player_to_play.name, clicked_hex)
 
@@ -161,7 +162,14 @@ class Game:
             self.alignement_player = player
             return True
         
-        self.switch_player()
+        if self.alignement_player == self.player_to_play:
+            self.alignement_player = self.p1 if self.alignement_player == self.p2 else self.p2
+            self.check_alignements(self.alignement_player)
+        else:
+            self.alignement_player = None
+            self.alignements = None
+            self.switch_player()
+        
         return False
 
     def get_possible_alignement(self, i: int, j: int) -> list[tuple[int, int]]:
@@ -233,7 +241,9 @@ class Game:
                 self.winner = player
                 return
             
-            self.switch_player()
+            if not self.check_alignements(player):
+                if self.alignement_player:
+                    self.check_alignements(self.alignement_player)
 
     def marker_placement_and_ring_movement(self, i: int, j: int, player_to_play_name: str, clicked_hex: Hexagon) -> None:
         """
@@ -262,7 +272,8 @@ class Game:
             self.board.flip_markers(i_marker, j_marker, i, j)
             self.player_to_play.marker_placed = None
             
-            self.check_alignements(self.player_to_play)
+            self.alignement_player = self.player_to_play
+            self.check_alignements(self.alignement_player)
             
     def get_inputs(self) -> None:
         """
@@ -274,6 +285,19 @@ class Game:
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.game_turn()
+    
+    def check_draw(self) -> bool:
+        """
+        Check if the game is a draw
+        :return: bool, True if the game is a draw, False otherwise
+        """
+        if self.player_to_play.marker_placed is not None:
+            i, j = self.player_to_play.marker_placed
+            valid_moves = self.board.valid_moves(i, j)
+            if valid_moves == []:
+                self.winner = None
+                return True
+        return False
 
     def play_background_video(self, surface: pygame.Surface) -> None:
         """
@@ -348,5 +372,8 @@ class Game:
             self.draw_board(screen)
             self.draw_ui(screen)
             pygame.display.flip()
+
+            if self.check_draw():
+                break
 
         return self.winner
