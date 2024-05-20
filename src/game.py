@@ -112,6 +112,64 @@ class Game:
         """
         self.player_to_play = self.p2 if self.player_to_play == self.p1 else self.p1
 
+    def bot_turn(self) -> None:
+        """
+        Handle the AI's turn during the game
+        """
+        if not self.rings_placed:
+            self.bot_place_ring()
+        else:
+            self.bot_marker_placement_and_ring_movement()
+    
+    def bot_place_ring(self) -> None:
+        """
+        Handle the AI's ring placement during the game
+        """
+        while True:
+            i = randint(0, 10)
+            j = randint(0, 10)
+            if self.board.board[i][j] is not None and self.board.board[i][j].state == "EMPTY":
+                self.p2.place_ring((i, j), self.board.board)
+                break
+        self.check_if_rings_placed()
+        self.switch_player()
+
+    def bot_marker_placement_and_ring_movement(self) -> None:
+        """
+        Handle the AI's marker placement and ring movement during the game
+        """
+        choosen_ring = choice(self.player_to_play.rings)
+        i, j = choosen_ring
+        self.player_to_play.place_marker((i, j), self.board.board)
+        valid_moves = self.board.valid_moves(i, j)
+        if valid_moves == []:
+            self.winner = self.p1
+            return
+        choosen_move = choice(valid_moves)
+        self.player_to_play.move_ring((i, j), choosen_move, self.board.board)
+        self.board.flip_markers(i, j, choosen_move[0], choosen_move[1])
+        self.switch_player()
+
+    def bot_alignement_removal(self) -> None:
+        """
+        Handle the AI's alignement removal during the game
+        """
+        alignement = choice(self.alignements)
+        for i, j in alignement:
+            self.board.board[i][j].marker = "EMPTY"
+        i, j = choice(self.p2.rings)
+        self.p2.remove_ring((i, j), self.board.board)
+        self.alignements = None
+        self.p2.alignment += 1
+
+        if self.has_won(self.p2):
+            self.winner = self.p2
+            return
+        
+        if not self.check_alignements(self.p2):
+            if self.alignement_player:
+                self.check_alignements(self.alignement_player)
+
     def game_turn(self) -> None:
         """
         Handle a player's turn during the game
@@ -233,7 +291,7 @@ class Game:
         :param player: Player, the player to remove the ring from
         """
         if self.board.board[i][j].state == "RING_P" + player.name[-1]:
-            self.board.board[i][j].state = "EMPTY"
+            player.remove_ring((i, j), self.board.board)
             self.ring_removal = False
             player.alignment += 1
 
@@ -267,6 +325,10 @@ class Game:
         """
         i_marker, j_marker = self.player_to_play.marker_placed
         valid_moves = self.board.valid_moves(i_marker, j_marker)
+        if valid_moves == []:
+            self.winner = self.p1 if self.player_to_play == self.p2 else self.p2
+            return
+        
         if (i, j) in valid_moves:
             self.player_to_play.move_ring((i_marker, j_marker), (i, j), self.board.board)
             self.board.flip_markers(i_marker, j_marker, i, j)
@@ -279,25 +341,16 @@ class Game:
         """
         Get the inputs from the user during the game
         """
+        if self.gamemode == "AI" and self.alignement_player == self.p2:
+            self.bot_alignement_removal()
+        elif self.gamemode == "AI" and self.player_to_play == self.p2:
+            self.bot_turn()
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.game_turn()
-    
-    def check_draw(self) -> bool:
-        """
-        Check if the game is a draw
-        :return: bool, True if the game is a draw, False otherwise
-        """
-        if self.player_to_play.marker_placed is not None:
-            i, j = self.player_to_play.marker_placed
-            valid_moves = self.board.valid_moves(i, j)
-            if valid_moves == []:
-                self.winner = None
-                return True
-        return False
 
     def play_background_video(self, surface: pygame.Surface) -> None:
         """
@@ -372,8 +425,5 @@ class Game:
             self.draw_board(screen)
             self.draw_ui(screen)
             pygame.display.flip()
-
-            if self.check_draw():
-                break
 
         return self.winner
