@@ -41,46 +41,38 @@ class Game:
         Load the images for the game
         """
         # Load title image
-        self.title = pygame.image.load("assets/graphics/logo/Yinsh.png")
-        self.title = self.title.convert_alpha()
+        self.title = pygame.image.load("assets/graphics/logo/Yinsh.png").convert_alpha()
         self.title = pygame.transform.scale(self.title, (374, 96))
 
         # Load rings images for scores
-        self.empty_ring = pygame.image.load("assets/graphics/rings/RING_EMPTY.png")
-        self.ring_p1 = pygame.image.load("assets/graphics/rings/RING_P1.png")
-        self.ring_p2 = pygame.image.load("assets/graphics/rings/RING_P2.png")
-        self.empty_ring = self.empty_ring.convert_alpha()
-        self.ring_p1 = self.ring_p1.convert_alpha()
-        self.ring_p2 = self.ring_p2.convert_alpha()
+        self.empty_ring = pygame.image.load("assets/graphics/rings/RING_EMPTY.png").convert_alpha()
+        self.ring_p1 = pygame.image.load("assets/graphics/rings/RING_P1.png").convert_alpha()
+        self.ring_p2 = pygame.image.load("assets/graphics/rings/RING_P2.png").convert_alpha()
         self.empty_ring = pygame.transform.scale(self.empty_ring, (100, 100))
         self.ring_p1 = pygame.transform.scale(self.ring_p1, (100, 100))
         self.ring_p2 = pygame.transform.scale(self.ring_p2, (100, 100))
 
         # Load indicators images
-        self.blue_place_ring = pygame.image.load("assets/graphics/indicators/BLUE_PLACE_RING.png")
-        self.blue_put_marker = pygame.image.load("assets/graphics/indicators/BLUE_PUT_MARKER.png")
-        self.blue_move_ring = pygame.image.load("assets/graphics/indicators/BLUE_MOVE_RING.png")
-        self.blue_remove_ring = pygame.image.load("assets/graphics/indicators/BLUE_REMOVE_RING.png")
-        self.red_place_ring = pygame.image.load("assets/graphics/indicators/RED_PLACE_RING.png")
-        self.red_put_marker = pygame.image.load("assets/graphics/indicators/RED_PUT_MARKER.png")
-        self.red_move_ring = pygame.image.load("assets/graphics/indicators/RED_MOVE_RING.png")
-        self.red_remove_ring = pygame.image.load("assets/graphics/indicators/RED_REMOVE_RING.png")
-        self.blue_place_ring = self.blue_place_ring.convert_alpha()
-        self.blue_put_marker = self.blue_put_marker.convert_alpha()
-        self.blue_move_ring = self.blue_move_ring.convert_alpha()
-        self.blue_remove_ring = self.blue_remove_ring.convert_alpha()
-        self.red_place_ring = self.red_place_ring.convert_alpha()
-        self.red_put_marker = self.red_put_marker.convert_alpha()
-        self.red_move_ring = self.red_move_ring.convert_alpha()
-        self.red_remove_ring = self.red_remove_ring.convert_alpha()
-        self.blue_place_ring = pygame.transform.scale(self.blue_place_ring, (360, 104))
-        self.blue_put_marker = pygame.transform.scale(self.blue_put_marker, (360, 104))
-        self.blue_move_ring = pygame.transform.scale(self.blue_move_ring, (360, 104))
-        self.blue_remove_ring = pygame.transform.scale(self.blue_remove_ring, (360, 104))
-        self.red_place_ring = pygame.transform.scale(self.red_place_ring, (360, 104))
-        self.red_put_marker = pygame.transform.scale(self.red_put_marker, (360, 104))
-        self.red_move_ring = pygame.transform.scale(self.red_move_ring, (360, 104))
-        self.red_remove_ring = pygame.transform.scale(self.red_remove_ring, (360, 104))
+        self.blue_place_ring = pygame.image.load("assets/graphics/indicators/BLUE_PLACE_RING.png").convert_alpha()
+        self.blue_put_marker = pygame.image.load("assets/graphics/indicators/BLUE_PLACE_MARKER.png").convert_alpha()
+        self.blue_move_ring = pygame.image.load("assets/graphics/indicators/BLUE_MOVE_RING.png").convert_alpha()
+        self.blue_remove_ring = pygame.image.load("assets/graphics/indicators/BLUE_REMOVE_RING.png").convert_alpha()
+        self.blue_remove_alignement = pygame.image.load("assets/graphics/indicators/BLUE_REMOVE_ALIGNEMENT.png").convert_alpha()
+        self.red_place_ring = pygame.image.load("assets/graphics/indicators/RED_PLACE_RING.png").convert_alpha()
+        self.red_put_marker = pygame.image.load("assets/graphics/indicators/RED_PLACE_MARKER.png").convert_alpha()
+        self.red_move_ring = pygame.image.load("assets/graphics/indicators/RED_MOVE_RING.png").convert_alpha()
+        self.red_remove_ring = pygame.image.load("assets/graphics/indicators/RED_REMOVE_RING.png").convert_alpha()
+        self.red_remove_alignement = pygame.image.load("assets/graphics/indicators/RED_REMOVE_ALIGNEMENT.png").convert_alpha()
+        self.blue_place_ring = pygame.transform.scale(self.blue_place_ring, (950, 100))
+        self.blue_put_marker = pygame.transform.scale(self.blue_put_marker, (950, 100))
+        self.blue_move_ring = pygame.transform.scale(self.blue_move_ring, (950, 100))
+        self.blue_remove_ring = pygame.transform.scale(self.blue_remove_ring, (950, 100))
+        self.blue_remove_alignement = pygame.transform.scale(self.blue_remove_alignement, (950, 100))
+        self.red_place_ring = pygame.transform.scale(self.red_place_ring, (950, 100))
+        self.red_put_marker = pygame.transform.scale(self.red_put_marker, (950, 100))
+        self.red_move_ring = pygame.transform.scale(self.red_move_ring, (950, 100))
+        self.red_remove_ring = pygame.transform.scale(self.red_remove_ring, (950, 100))
+        self.red_remove_alignement = pygame.transform.scale(self.red_remove_alignement, (950, 100))
 
     def has_won(self, player: Player) -> bool:
         """
@@ -96,8 +88,6 @@ class Game:
         """
         pygame.mixer.music.load("assets/audio/piano-loop-3.mp3")
         pygame.mixer.music.play(-1)
-        # TODO : Remove this line to enable the music
-        pygame.mixer.music.set_volume(0)
         
     def check_if_rings_placed(self) -> None:
         """
@@ -370,16 +360,44 @@ class Game:
         :param screen: pygame.Surface, the surface to display the score on
         """
         for i in range(self.alignement_to_win):
-            screen.blit(self.empty_ring, (900 + i * 120, 950))
+            screen.blit(self.empty_ring, (900 + i * 120, 810))
 
         for i in range(self.p1.alignment):
-            screen.blit(self.ring_p1, (900 + i * 120, 950))
+            screen.blit(self.ring_p1, (900 + i * 120, 810))
 
         for i in range(self.alignement_to_win):
-            screen.blit(self.empty_ring, (1750 - i * 120, 950))
+            screen.blit(self.empty_ring, (1750 - i * 120, 810))
 
         for i in range(self.p2.alignment):
-            screen.blit(self.ring_p2, (1750 - i * 120, 950))
+            screen.blit(self.ring_p2, (1750 - i * 120, 810))
+            
+    def draw_indicators(self, screen: pygame.Surface) -> None:
+        if not self.rings_placed:
+            if self.player_to_play == self.p1:
+                screen.blit(self.blue_place_ring, (900, 930))
+            else:
+                screen.blit(self.red_place_ring, (900, 930))
+        elif self.ring_removal:
+            if self.alignement_player == self.p1:
+                screen.blit(self.blue_remove_ring, (900, 930))
+            else:
+                screen.blit(self.red_remove_ring, (900, 930))
+        elif self.alignements is not None:
+            if self.alignement_player == self.p1:
+                screen.blit(self.blue_remove_alignement, (900, 930))
+            else:
+                screen.blit(self.red_remove_alignement, (900, 930))
+        else:
+            if self.player_to_play == self.p1:
+                if self.player_to_play.marker_placed is None:
+                    screen.blit(self.blue_put_marker, (900, 930))
+                else:
+                    screen.blit(self.blue_move_ring, (900, 930))
+            else:
+                if self.player_to_play.marker_placed is None:
+                    screen.blit(self.red_put_marker, (900, 930))
+                else:
+                    screen.blit(self.red_move_ring, (900, 930))
 
     def draw_ui(self, screen: pygame.Surface) -> None:
         """
@@ -389,6 +407,7 @@ class Game:
         screen.blit(self.title, (375, 90))
         self.draw_score(screen)
         self.draw_alignement_preview(screen)
+        self.draw_indicators(screen)
 
     def draw_move_preview(self, screen: pygame.Surface) -> None:
         """
