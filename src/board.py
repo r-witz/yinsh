@@ -63,6 +63,24 @@ class Board:
             y = starty + vert * 2
             starty = y
 
+    def board_state(self) -> list[list[str]]:
+        """
+        Get the state of the board.
+        :return: list[list[str]], State of the board.
+        """
+        return [[(hexagon.state, hexagon.marker) if hexagon is not None else None for hexagon in row] for row in self.board]
+    
+    def update_board(self, state: list[list[str]]) -> None:
+        """
+        Update the board with the given state.
+        :param state: list[list[str]], State of the board.
+        """
+        for i in range(11):
+            for j in range(11):
+                if state[i][j] is not None:
+                    self.board[i][j].state = state[i][j][0]
+                    self.board[i][j].marker = state[i][j][1]
+
     def get_neighbours(self, i: int, j: int) -> list[tuple[int, int]]:
         """
         Get the coordinates of the neighbors of a hexagon on the board. Used to draw the board lines.
