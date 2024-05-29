@@ -381,6 +381,10 @@ class Game:
             screen.blit(self.ring_p2, (1750 - i * 120, 810))
             
     def draw_indicators(self, screen: pygame.Surface) -> None:
+        """
+        Draw the indicators for the player on the screen
+        :param screen: pygame.Surface, the surface to display the indicators on
+        """
         if not self.rings_placed:
             if self.player_to_play == self.p1:
                 screen.blit(self.blue_place_ring, (900, 930))
@@ -443,6 +447,7 @@ class Game:
     def wait(self, time) -> None:
         """
         Wait for a certain amount of time before continuing the game without stopping the background video and music from playing
+        :param time: int, the time to wait in milliseconds
         """
         screen = pygame.display.get_surface()
         start_time = pygame.time.get_ticks()
