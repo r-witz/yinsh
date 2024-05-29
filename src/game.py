@@ -107,8 +107,10 @@ class Game:
         Handle the AI's turn during the game
         """
         if not self.rings_placed:
+            self.wait(1000)
             self.bot_place_ring()
         else:
+            self.wait(1000)
             self.bot_marker_placement_and_ring_movement()
     
     def bot_place_ring(self) -> None:
@@ -131,6 +133,8 @@ class Game:
         choosen_ring = choice(self.player_to_play.rings)
         i, j = choosen_ring
         self.player_to_play.place_marker((i, j), self.board.board)
+        self.player_to_play.marker_placed = (i, j)
+        self.wait(500)
         valid_moves = self.board.valid_moves(i, j)
         if valid_moves == []:
             self.winner = self.p1
@@ -138,18 +142,23 @@ class Game:
         choosen_move = choice(valid_moves)
         self.player_to_play.move_ring((i, j), choosen_move, self.board.board)
         self.board.flip_markers(i, j, choosen_move[0], choosen_move[1])
+        self.player_to_play.marker_placed = None
         self.switch_player()
 
     def bot_alignement_removal(self) -> None:
         """
         Handle the AI's alignement removal during the game
         """
+        self.wait(1000)
         alignement = choice(self.alignements)
         for i, j in alignement:
             self.board.board[i][j].marker = "EMPTY"
+        self.ring_removal = True
+        self.wait(1000)
         i, j = choice(self.p2.rings)
         self.p2.remove_ring((i, j), self.board.board)
         self.alignements = None
+        self.ring_removal = False
         self.p2.alignment += 1
 
         if self.has_won(self.p2):
@@ -430,6 +439,18 @@ class Game:
         surface_board = self.board.draw_player_elements(surface_board)
         self.draw_move_preview(surface_board)
         screen.blit(surface_board, (0, 0))
+        
+    def wait(self, time) -> None:
+        """
+        Wait for a certain amount of time before continuing the game without stopping the background video and music from playing
+        """
+        screen = pygame.display.get_surface()
+        start_time = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_time < time:
+            self.play_background_video(screen)
+            self.draw_board(screen)
+            self.draw_ui(screen)
+            pygame.display.flip()
 
     def run(self, screen: pygame.Surface) -> None:
         """
