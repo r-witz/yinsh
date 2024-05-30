@@ -29,7 +29,7 @@ class Game:
         self.ring_removal = False
         self.alignements = None
         self.alignement_player = None
-        self.winner = None # None if draw, Player if win
+        self.winner = None
 
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
@@ -137,7 +137,7 @@ class Game:
         self.wait(500)
         valid_moves = self.board.valid_moves(i, j)
         if valid_moves == []:
-            self.winner = self.p1
+            self.winner = self.p1.name
             return
         choosen_move = choice(valid_moves)
         self.player_to_play.move_ring((i, j), choosen_move, self.board.board)
@@ -162,7 +162,7 @@ class Game:
         self.p2.alignment += 1
 
         if self.has_won(self.p2):
-            self.winner = self.p2
+            self.winner = self.p2.name
             return
         
         if not self.check_alignements(self.p2):
@@ -295,7 +295,7 @@ class Game:
             player.alignment += 1
 
             if self.has_won(player):
-                self.winner = player
+                self.winner = player.name
                 return
             
             if not self.check_alignements(player):
