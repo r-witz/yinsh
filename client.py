@@ -18,11 +18,6 @@ class Client:
 
         pygame.init()
         self.screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN | pygame.SCALED)
-        pygame.display.set_caption("YINSH")
-        # pygame.display init
-
-
-
 
         self.game_state = {
             'board': self.game.board.board_state(),
@@ -32,7 +27,6 @@ class Client:
 
         threading.Thread(target=self.launch_game, args=(self.screen,)).start()
 
-        # Initialize socket for communication
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.SERVER_ADDRESS, self.SERVER_PORT))
 
@@ -90,7 +84,5 @@ class Client:
                     print("Player 2 wins!")
                     running = False
 
-# Example usage
 if __name__ == "__main__":
-    client = Client()
-    client.run()
+    Client().run()
