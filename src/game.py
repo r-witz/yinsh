@@ -7,15 +7,19 @@ from random import choice, randint
 from src.player import Player
 from src.board import Board
 from src.hexagon import Hexagon
+from src.client import Client
 
 class Game:
-    def __init__(self, gamemode: str, difficulty: str) -> None:
+    def __init__(self, gamemode: str, difficulty: str, ip: str = None) -> None:
         """
         Initialize the Game class
         :param gamemode: str, the game mode (AI, Local, Online)
         :param difficulty: str, the game difficulty (Normal, Blitz)
         """
         self.clock = pygame.time.Clock()
+
+        self.ip = ip
+        self.client = Client(self.ip) if gamemode == "Online" else None
 
         self.gamemode = gamemode
         self.difficulty = difficulty
@@ -88,6 +92,7 @@ class Game:
         """
         pygame.mixer.music.load("assets/audio/piano-loop-3.mp3")
         pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0)
         
     def check_if_rings_placed(self) -> None:
         """
@@ -137,7 +142,7 @@ class Game:
         self.wait(500)
         valid_moves = self.board.valid_moves(i, j)
         if valid_moves == []:
-            self.winner = self.p1
+            self.winner = self.p1.name
             return
         choosen_move = choice(valid_moves)
         self.player_to_play.move_ring((i, j), choosen_move, self.board.board)
@@ -162,7 +167,7 @@ class Game:
         self.p2.alignment += 1
 
         if self.has_won(self.p2):
-            self.winner = self.p2
+            self.winner = self.p2.name
             return
         
         if not self.check_alignements(self.p2):
@@ -295,7 +300,7 @@ class Game:
             player.alignment += 1
 
             if self.has_won(player):
-                self.winner = player
+                self.winner = player.name
                 return
             
             if not self.check_alignements(player):
@@ -325,7 +330,7 @@ class Game:
         i_marker, j_marker = self.player_to_play.marker_placed
         valid_moves = self.board.valid_moves(i_marker, j_marker)
         if valid_moves == []:
-            self.winner = self.p1 if self.player_to_play == self.p2 else self.p2
+            self.winner = self.p1.name if self.player_to_play == self.p2 else self.p2.name
             return
         
         if (i, j) in valid_moves:
@@ -344,12 +349,15 @@ class Game:
             self.bot_alignement_removal()
         elif self.gamemode == "AI" and self.player_to_play == self.p2:
             self.bot_turn()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                self.game_turn()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.client is None or (self.client is not None and self.client.your_turn):
+                    self.game_turn()
+                    self.send_game_infos()
 
     def play_background_video(self, surface: pygame.Surface) -> None:
         """
@@ -457,6 +465,48 @@ class Game:
             self.draw_ui(screen)
             pygame.display.flip()
 
+    def fetch_game_infos(self) -> None:
+        """
+        Fetch the infos from the server using the connection through the client.
+        """
+        if self.client is None:
+            return
+        
+        response = self.client.fetch_game_state()
+        self.board.update_board(response["board"])
+        self.player_to_play = self.p1 if response["current_player"] == "1" else self.p2
+        self.winner = response["winner"]
+        self.p1.rings = response["p1_rings"]
+        self.p2.rings = response["p2_rings"]
+        self.rings_placed = response["rings_placed"]
+        self.p1.alignment = int(response['p1_alignement'])
+        self.p2.alignment = int(response['p2_alignement'])
+
+    def format_game_infos(self) -> dict:
+        """
+        Format the game's infos to send it to the server through the client.
+        :return: dict, The game's informations in json format to send through the client.
+        """
+        return {
+            'board': self.board.board_state(),
+            'current_player': "1" if self.player_to_play == self.p1 else "2",
+            'winner': self.winner,
+            'p1_rings': self.p1.rings,
+            'p2_rings': self.p2.rings,
+            'rings_placed': self.rings_placed,
+            'p1_alignement': self.p1.alignment,
+            'p2_alignement': self.p2.alignment,
+        }
+
+    def send_game_infos(self):
+        if self.client:
+            game_state = self.format_game_infos()
+            response = self.client.update_game_state(game_state)
+            if response['status'] == 'success':
+                self.client.fetch_game_state()
+            else:
+                print("Failed to send game info")
+
     def run(self, screen: pygame.Surface) -> None:
         """
         Run the game loop
@@ -464,6 +514,7 @@ class Game:
         """
         self.play_background_music()
         while not self.winner:
+            self.fetch_game_infos()
             self.clock.tick(self.fps)
             self.play_background_video(screen)
             self.get_inputs()
