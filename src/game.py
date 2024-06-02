@@ -3,11 +3,13 @@ import cv2
 
 from sys import exit
 from random import choice, randint
+from json import load
 
 from src.player import Player
 from src.board import Board
 from src.hexagon import Hexagon
 from src.client import Client
+from src.resizing import Resizer
 
 class Game:
     def __init__(self, gamemode: str, difficulty: str, ip: str = None) -> None:
@@ -35,6 +37,7 @@ class Game:
         self.alignement_player = None
         self.winner = None
 
+        self.settings = False
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
 
@@ -78,6 +81,15 @@ class Game:
         self.red_remove_ring = pygame.transform.scale(self.red_remove_ring, (950, 100))
         self.red_remove_alignement = pygame.transform.scale(self.red_remove_alignement, (950, 100))
 
+        self.load_assets = Resizer(1920, 1080).load_assets
+        self.menu_button, self.menu_button_rect = self.load_assets()['menu_button']
+        self.resume_button, self.resume_button_rect = self.load_assets()['resume_button']
+        
+        self.resume_button, self.menu_button = (
+            pygame.transform.scale(self.resume_button, (400, 125)), 
+            pygame.transform.scale(self.menu_button, (400, 125))
+        )
+
     def has_won(self, player: Player) -> bool:
         """
         Check if a player has won the game
@@ -92,7 +104,15 @@ class Game:
         """
         pygame.mixer.music.load("assets/audio/piano-loop-3.mp3")
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(0)
+        with open('settings.json', 'r') as f:
+            settings = load(f)
+        pygame.mixer.music.set_volume(settings['volumes']['music'])
+
+    def update_music_volume(self) -> None:
+        """
+        Update the volume of the music
+        """
+        pass
         
     def check_if_rings_placed(self) -> None:
         """
@@ -340,6 +360,19 @@ class Game:
             
             self.alignement_player = self.player_to_play
             self.check_alignements(self.alignement_player)
+
+    def tab_menu(self, screen: pygame.Surface) -> None:
+        """
+        Display the tab menu for the game
+        :param screen: pygame.Surface, the surface to draw the tab menu on
+        """
+        self.resume_button_rect.topleft=(755, 410) 
+        self.menu_button_rect.topleft = (755, 565)
+
+        pygame.draw.rect(screen, (0, 0, 0), (700, 357, 500, 390), border_radius=30)
+        pygame.draw.rect(screen, (249, 240, 194), (700, 357, 500, 390), 7, border_radius=30)
+        screen.blit(self.resume_button, self.resume_button_rect)
+        screen.blit(self.menu_button, self.menu_button_rect)
             
     def get_inputs(self) -> None:
         """
@@ -351,13 +384,21 @@ class Game:
             self.bot_turn()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.settings = True if self.settings == False else False
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.client is None or (self.client is not None and self.client.your_turn):
+                if self.settings == False and (self.client is None or (self.client is not None and self.client.your_turn)):
                     self.game_turn()
                     self.send_game_infos()
+                elif self.settings == True:
+                    if self.resume_button_rect.collidepoint(event.pos):
+                        self.settings = False
+                    if self.menu_button_rect.collidepoint(event.pos):
+                        self.settings = False
+                        self.winner = "Menu"
 
     def play_background_video(self, surface: pygame.Surface) -> None:
         """
@@ -429,6 +470,8 @@ class Game:
         self.draw_score(screen)
         self.draw_alignement_preview(screen)
         self.draw_indicators(screen)
+        if self.settings:
+            self.tab_menu(screen)
 
     def draw_move_preview(self, screen: pygame.Surface) -> None:
         """
@@ -518,6 +561,7 @@ class Game:
             self.clock.tick(self.fps)
             self.play_background_video(screen)
             self.get_inputs()
+            self.update_music_volume()
             self.draw_board(screen)
             self.draw_ui(screen)
             pygame.display.flip()
