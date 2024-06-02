@@ -43,12 +43,13 @@ class Server:
 
         self.players = {'Player1': None, 'Player2': None}
         self.last_disconnect_time = None
+        self.running = True
 
     def handle_client(self, conn, addr, player):
         print(f"Player {player} connected by {addr}")
         self.last_disconnect_time = None
 
-        while True:
+        while self.running:
             try:
                 data = conn.recv(4096)
                 if not data:
@@ -77,9 +78,10 @@ class Server:
 
     def check_timeout(self):
         while True:
-            if self.last_disconnect_time and (time.time() - self.last_disconnect_time) >= 3:
+            if all(player is None for player in self.players.values()) and self.last_disconnect_time and (time.time() - self.last_disconnect_time) >= 3:
                 print("No players connected for 3 seconds. Shutting down the server.")
-                os._exit(0)
+                self.running = False
+                break
             time.sleep(1)
 
     def start_server(self):
@@ -94,7 +96,7 @@ class Server:
             timeout_thread = threading.Thread(target=self.check_timeout, daemon=True)
             timeout_thread.start()
 
-            while True:
+            while self.running:
                 client_socket, addr = s.accept()
                 if self.players["Player1"] is None:
                     self.players["Player1"] = client_socket
