@@ -43,7 +43,64 @@ cd yinsh
 python main.py
 ```
 
-# How To Use The ame
+# How To Use The Game
+
+
+# YINSH Game Rules
+
+## Objective
+
+The objective of YINSH is to be the first player to remove three of their own rings from the board. This is achieved by creating a row of five markers of the player's color.
+
+## Components
+
+- 1 game board
+- 5 rings per player (in two colors)
+- Markers in two colors (black on one side, white on the other)
+
+## Setup
+
+1. Each player chooses a color and takes 5 rings of that color.
+2. Players place their rings on the intersections of the lines on the game board. Rings can be placed on any intersection except the central one, taking turns to place one ring at a time.
+
+## Gameplay
+
+- **Turn Sequence**:
+  1. **Place a Marker**: Place a marker inside one of your rings. Markers are placed with the side showing your opponent's color face-up.
+  2. **Move a Ring**: Move one of your rings along the lines on the board. Rings can move any number of spaces but must move in a straight line and cannot pass over another ring. Rings can pass over markers.
+
+- **Flipping Markers**: When a ring passes over a marker, that marker is flipped to show the opposite color. Multiple markers can be flipped in a single move if they are all in a continuous line.
+
+- **Forming a Row**: If a player creates a continuous row of five markers of their color (horizontally, vertically, or diagonally), they must remove those markers from the board and then remove one of their rings. The first player to remove three rings wins the game.
+
+## Additional Rules
+
+- **Jumping**: A ring must always end its move on an empty intersection. It cannot jump over another ring.
+- **Continuous Line**: When flipping markers, they must form a continuous line, and all markers in that line are flipped.
+
+## Winning the Game
+
+### Normal Mode
+
+- The game ends immediately when a player removes their third ring. That player is declared the winner.
+
+### Blitz Mode
+
+- In Blitz mode, the game ends immediately when a player removes their first ring. That player is declared the winner.
+
+## Example Moves
+
+1. Player A places a marker in one of their rings.
+2. Player A moves that ring along the lines to an empty intersection.
+3. As the ring moves, it passes over one or more markers, flipping them to show the opposite color.
+
+## Strategy Tips
+
+- **Control the Center**: Controlling the center of the board gives more flexibility for creating rows and flipping markers.
+- **Anticipate Moves**: Try to predict your opponent's moves and prevent them from forming rows of their color.
+- **Create Multiple Threats**: Force your opponent to respond to multiple threats, increasing the chances of creating a row.
+
+Enjoy playing YINSH!
 
 
 # License
