@@ -58,6 +58,8 @@ class Introduction:
         self.select_online_mode = Menus().select_online_mode
         self.victory_screen = Menus().victory_screen
 
+        self.replay = True
+
         with open('settings.json', 'r') as f:
             settings = json.load(f)
 
@@ -129,6 +131,8 @@ class Menus:
         
         self.music_volume = settings['volumes']['music']
         self.sfx_volume = settings['volumes']['sfx']
+
+        self.replay = True
 
     def random_music(self) -> None:
         music = random.choice([self.first_music, self.second_music, self.third_music])
@@ -368,16 +372,22 @@ class Menus:
                         Menus.select_mode(self, screen, video_path, self.blitz_button, self.normal_button)
                         return
                     elif botmode_button_rect.collidepoint(event.pos):
-                        self.winner = Game("AI", mode).run(screen)
-                        if self.winner != "Menu":
-                            self.victory_screen(screen, video_path, self.winner, "AI", mode)
+                        while self.replay:
+                            self.winner = Game("AI", mode).run(screen)
+                            if self.winner != "Menu":
+                                self.victory_screen(screen, video_path, self.winner, "AI", mode)
+                            else:
+                                break
                         return
                     elif online_button_rect.collidepoint(event.pos):
                         self.winner = self.select_online_mode(screen, video_path, mode)
                     elif local_button_rect.collidepoint(event.pos):
-                        self.winner = Game("Local", mode).run(screen)
-                        if self.winner != "Menu":
-                            self.victory_screen(screen, video_path, self.winner, "Local", mode)
+                        while self.replay:
+                            self.winner = Game("Local", mode).run(screen)
+                            if self.winner != "Menu":
+                                self.victory_screen(screen, video_path, self.winner, "Local", mode)
+                            else:
+                                break
                         return
                     
     def select_online_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> str:
@@ -550,8 +560,8 @@ class Menus:
 
 
     def victory_screen(self, screen: pygame.Surface, video_path: str, winner: str, gamemode: str, difficulty: str) -> None:
-        self.width, self.height
-        winner = winner[:-1] + " " + winner[-1] + " wins !"
+        self.width, self.height = screen.get_size()
+        winner = winner[:-1] + " " + winner[-1] + " wins!"
         fade_surface = pygame.Surface((self.width, self.height))
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
@@ -565,7 +575,7 @@ class Menus:
 
         running = True
         while running:
-            self.check_quit_event
+            self.check_quit_event()
             ret, frame = cap.read()
             if not ret:
                 cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 0)
@@ -576,8 +586,6 @@ class Menus:
 
             screen.blit(video_surf, (0, 0))
 
-            self.replay_button, self.replay_button_rect
-            self.menu_button, self.menu_button_rect
             font = pygame.font.Font("./assets/font/Daydream.ttf", 50)
             text_surf = font.render(winner, True, (249, 240, 194))
 
@@ -588,7 +596,7 @@ class Menus:
 
             pygame.draw.rect(screen, (0, 0, 0), (500, 300, 900, 400), border_radius=30)
             pygame.draw.rect(screen, (249, 240, 194), (500, 300, 900, 400), 7, border_radius=30)
-            self.replay_button_rect.topleft=(575, 500)
+            self.replay_button_rect.topleft = (575, 500)
             self.menu_button_rect.topleft = (975, 500)
             text_rect = text_surf.get_rect(center=(950, 400))
             screen.blit(text_surf, text_rect)
@@ -596,16 +604,21 @@ class Menus:
             screen.blit(self.replay_button, self.replay_button_rect)
             screen.blit(self.menu_button, self.menu_button_rect)
             
+            pygame.display.update()
+            pygame.time.delay(frame_delay)
+
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.replay_button_rect.collidepoint(event.pos):
-                        winner = Game(gamemode, difficulty).run(screen)
-                        if winner != "Menu":
-                            self.victory_screen(screen, video_path, self.winner, gamemode, difficulty)
-                        return
+                        self.replay = True
+                        running = False
                     elif self.menu_button_rect.collidepoint(event.pos):
+                        self.replay = False
+                        running = False
                         Menus.main_menu(self, screen, video_path, comeback_mainmenu=True)
-                        return
 
             pygame.display.update()
             pygame.time.delay(frame_delay)
