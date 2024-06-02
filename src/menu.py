@@ -465,8 +465,7 @@ class Menus:
 
     def host_mode(self, screen: pygame.Surface, mode: str) -> None:
         thread = threading.Thread(target=Server().start_server, args=()).start()
-        winner = Game("Online", mode, gethostbyname(gethostname())).run(screen)
-        thread.kill()
+        Game("Online", mode, gethostbyname(gethostname())).run(screen)
 
     def join_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> None:
         self.width, self.height = screen.get_size()
@@ -521,10 +520,9 @@ class Menus:
 
             for index, ip in enumerate(ip_addresses):
                 ip_text = ip_font.render("Room " + str(index+1), True, (255, 255, 255))
-                ip_pos = ip_rect.topleft[0] + left_padding, ip_rect.topleft[1] + vertical_padding + top_padding + index * 40 - scroll_offset
+                ip_pos = ip_rect.topleft[0] + left_padding, ip_rect.topleft[1] + top_padding + vertical_padding + index * 40 - scroll_offset
                 screen.blit(ip_text, ip_pos)
 
-                # Check if cursor is over this IP text
                 ip_text_rect = pygame.Rect(ip_pos, (col_width, 40))
                 if ip_text_rect.collidepoint(pygame.mouse.get_pos()):
                     cursor_over_ip = True
