@@ -464,10 +464,9 @@ class Menus:
         screen.blit(text_surf, text_rect)
 
     def host_mode(self, screen: pygame.Surface, mode: str) -> None:
-        thread = thread = threading.Thread(target=Server().start_server, args=())
+        thread = threading.Thread(target=Server().start_server, args=())
         thread.start()
         Game("Online", mode, gethostbyname(gethostname())).run(screen)
-        thread.kill()
 
     def join_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> None:
         self.width, self.height = screen.get_size()
@@ -524,7 +523,7 @@ class Menus:
                 ip_pos = ip_rect.topleft[0] + left_padding, ip_rect.topleft[1] + top_padding + vertical_padding + index * 40 - scroll_offset
                 screen.blit(ip_text, ip_pos)
 
-                ip_text_rect = pygame.Rect(ip_pos, (col_width, 40))
+                ip_text_rect = ip_text.get_rect(topleft=ip_pos)
                 if ip_text_rect.collidepoint(pygame.mouse.get_pos()):
                     cursor_over_ip = True
 
@@ -544,11 +543,12 @@ class Menus:
                     if self.arrow_rect.collidepoint(event.pos):
                         self.select_online_mode(screen, video_path, mode)
                     for index, ip in enumerate(ip_addresses):
-                        ip_pos = ip_rect.topleft[0], ip_rect.topleft[1] + index * 40
-                        ip_text_rect = pygame.Rect(ip_pos, (col_width, 40))
+                        ip_pos = ip_rect.topleft[0] + left_padding, ip_rect.topleft[1] + top_padding + vertical_padding + index * 40 - scroll_offset
+                        ip_text_rect = ip_font.render("Room " + str(index+1), True, (255, 255, 255)).get_rect(topleft=ip_pos)
                         if ip_text_rect.collidepoint(event.pos):
                             Game("Online", mode, ip).run(screen)
-                
+
+
     def victory_screen(self, screen: pygame.Surface, video_path: str, winner: str, gamemode: str, difficulty: str) -> None:
         self.width, self.height
         winner = winner[:-1] + " " + winner[-1] + " wins !"

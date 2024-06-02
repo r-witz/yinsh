@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 import os
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -41,9 +42,11 @@ class Server:
                             }
 
         self.players = {'Player1': None, 'Player2': None}
+        self.last_disconnect_time = None
 
     def handle_client(self, conn, addr, player):
         print(f"Player {player} connected by {addr}")
+        self.last_disconnect_time = None
 
         while True:
             try:
@@ -69,7 +72,15 @@ class Server:
 
         conn.close()
         self.players["Player"+str(player)] = None
+        self.last_disconnect_time = time.time()
         print(f"Player {player} disconnected")
+
+    def check_timeout(self):
+        while True:
+            if self.last_disconnect_time and (time.time() - self.last_disconnect_time) >= 3:
+                print("No players connected for 3 seconds. Shutting down the server.")
+                os._exit(0)
+            time.sleep(1)
 
     def start_server(self):
         print(f"server address: {self.SERVER_ADDRESS}")
@@ -79,6 +90,9 @@ class Server:
             s.bind((self.SERVER_ADDRESS, self.SERVER_PORT))
             s.listen(2)
             print(f"Server listening on {self.SERVER_ADDRESS}:{self.SERVER_PORT}")
+
+            timeout_thread = threading.Thread(target=self.check_timeout, daemon=True)
+            timeout_thread.start()
 
             while True:
                 client_socket, addr = s.accept()
