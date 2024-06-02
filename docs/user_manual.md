@@ -43,7 +43,19 @@ cd yinsh
 python main.py
 ```
 
-# How To Use The Game
+# How to Play the Game
+
+The game is mainly clickable, meaning you interact with the game primarily through clicking.
+
+## Commands
+
+### Menu
+
+- **Opening the Settings Menu**: Press the `Echap` key (Esc) to open the settings menu.
+
+### Leave The Game
+
+- **Quitting the Game**: To quit the game, you can press `ALT+F4` or use the "Leave" button available in the game's interface.
 
 
 # YINSH Game Rules
