@@ -33,7 +33,7 @@ class Game:
         self.ring_removal = False
         self.alignements = None
         self.alignement_player = None
-        self.winner = None # None if draw, Player if win
+        self.winner = None
 
         self.video = cv2.VideoCapture("assets/graphics/background/menu.mp4")
         self.fps = self.video.get(cv2.CAP_PROP_FPS)
