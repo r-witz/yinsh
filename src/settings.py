@@ -1,7 +1,7 @@
 import pygame
 import pygame_gui
 import pygame.freetype
-from resizing import Resizer
+from src.resizing import Resizer
 
 def load_assets():
     resizer = Resizer(1920, 1080)

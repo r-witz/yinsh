@@ -3,9 +3,10 @@ import pygame.freetype
 from pygame.locals import QUIT
 import cv2
 import sys
-from resizing import Resizer
-from settings import launch_volume_control
-import random  
+from src.resizing import Resizer
+from src.settings import launch_volume_control
+from src.game import Game
+import random
 
 def load_assets():
     resizer = Resizer(1920, 1080)
@@ -372,13 +373,14 @@ def select_mode_type(screen, video_path, mode):
                     select_mode(screen, video_path, assets['blitz_button'][0], assets['normal_button'][0]) 
                     return
                 elif botmode_button_rect.collidepoint(event.pos):
-                    online_mode = select_online_mode(screen, video_path, mode, "Botmode")                    
+                    Game("AI", mode).run(screen)                
                     return
                 elif online_button_rect.collidepoint(event.pos):
-                    fade_function(screen, fade_surface, None, "out", 5)  
+                    online_mode =  select_online_mode(screen, video_path, mode, "Online")
+                    select_online_mode(screen, video_path, mode, online_mode)
                     return
                 elif local_button_rect.collidepoint(event.pos):
-                    fade_function(screen, fade_surface, None, "out", 5)  
+                    Game("Local", mode).run(screen)
                     return
                 
 def select_online_mode(screen, video_path, mode, online_mode):
@@ -772,8 +774,7 @@ def victory_screen(screen, video_path, winner):
                 sys.exit()
 
 
-if __name__ == '__main__':
-    screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN | pygame.SCALED)
-    pygame.display.set_caption('Yinsh')
-    pygame.font.init()
-    join_mode(screen, 'assets/graphics/background/menu.mp4', "Normal", "Botmode")
+# if __name__ == '__main__':
+#     screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN | pygame.SCALED)
+#     pygame.display.set_caption('Yinsh')
+#     pygame.font.init()

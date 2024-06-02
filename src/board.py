@@ -21,8 +21,7 @@ class Board:
         ]
 
         self.init_board()
-        pygame.init()
-        pygame.display.set_mode()
+        pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN | pygame.SCALED)
 
         # Load images for rings
         self.ring_img_p1 = pygame.image.load("assets/graphics/rings/RING_P1.png")
