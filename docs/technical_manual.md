@@ -175,17 +175,53 @@ It will also help you understand how the classes interact with each others.
 
 ## Algorithms Used
 
-### Hexagonal Grid Management
+### Hexagonal Grid Management:
 
-### Ring Movement
+The hexagonal grid management in the game involves initializing a hexagonal grid structure, placing hexagonal tiles, and managing their properties and interactions. This section explains the process of creating and managing the hexagonal grid on the game board, leveraging the [`Hexagon`](../src/hexagon.py) class to define individual hexagonal tiles and their behaviors. The key aspects of this algorithm include:
 
-### Alignement Detection
+- **Hexagons Representation**: Hexagons are represented by a Class, having an x, y position and size to draw them. It then can work out its width, height, and 6 vertexes. It then has a method that check if a given point is in the Hexagon.
+<br>For more information go see the [`hexagon.py`](../src/hexagon.py) file and the `init_board` method in the [`board.py`](../src/board.py) file
+- **Grid Initialization**: Initializes the grid by creating Hexagonal tiles and positioning them correctly based on their coordinates. Each tile is assigned a unique identifier and positioned using axial or offset coordinates to maintain the hexagonal structure.
+- **Tile Adjacency**: Calculates adjacent tiles for any given tile, facilitating movement and interaction within the grid. This is done using predefined direction vectors that represent the six possible neighboring positions in a hexagonal layout.
+<br>For more information go see the `get_neighbours` method in the [`board.py`](../src/board.py) file
+- **Drawing the Board**: The board is drawn using the tile adjency. We iterate through each tile of the board, get its center, and then for each neighbour got through tile adjency, we draw a line towards that neighbour.
+<br>For more information go see the `draw_board` method in the [`board.py`](../src/board.py) file
 
-### Alignement Selection
+![yinsh board hexagonal hitboxes backend](../assets/graphics/github/yinsh_board_hitbox_backend.png)
+> You can here see how the grid is represented in backend. The red hexagons represented None types in the board, this means the tile is not an Hexagon, it is just here to space the rest of the board tiles. The white hexagons are the one actually clickable and are Hexagon types.
+
+### Ring Movement:
+
+The ring movement algorithm in the game involves several key steps: selecting a ring to move, determining valid destinations for the ring, moving the ring to the selected destination, and flipping markers along the path of movement. Here, we break down these steps to explain how the process is handled.
+
+**Steps Involved in Moving a Player's Ring**
+
+1. **Selecting the Ring to Move:**<br>
+        The player selects a ring to move by clicking on it. This interaction is captured through a mouse event in the game interface. The position of the click is then mapped to the corresponding hexagon on the board.
+        The method [`get_hexagon`](../src/board.py) in the Board class is used to determine the hexagon corresponding to the click position. It returns the coordinates of the hexagon if the click is within its bounds.
+
+2. **Determining Valid Moves:**<br>
+        Once a ring is selected, the game calculates all the valid cells where the ring can be moved. This is achieved using the [`valid_moves`](../src/board.py) method in the Board class.
+        The [`valid_moves`](../src/board.py) method relies on the `get_lines` method to identify all potential paths (vertical, horizontal, and diagonal) from the ring's current position. It ensures that rings cannot jump over other rings and must move through empty cells.
+        The `get_lines` method generates all possible lines originating from the current position of the ring, considering the hexagonal grid's geometry.
+        For each line, the algorithm checks the cells sequentially. If it encounters an empty cell, it is considered a valid move. If it encounters a ring, it stops further checking along that line.
+
+3. **Moving the Ring:**<br>
+        The player then selects one of the valid moves. The ring is moved from its initial position to the final position using the move_ring method in the Player class.
+        The [`move_ring`](../src/player.py) method first removes the ring from its initial position using the [`remove_ring`](../src/player.py) method and then places it at the new position using the [`place_ring`](../src/player.py) method.
+        Both [`remove_ring`](../src/player.py) and [`place_ring`](../src/player.py) methods update the state of the respective hexagons on the board to reflect the ring's movement.
+
+4. **Flipping Markers:**<br>
+		After moving the ring, any markers between the initial and final positions are flipped. This is handled by the [`flip_markers`](../src/board.py) method in the Board class.
+        The [`flip_markers`](../src/board.py) method first retrieves all the cells between the initial and final positions using the [`get_cells_between`](../src/board.py) method.
+        It then iterates through these cells (excluding the starting and ending cells), and flips the markers. The marker is flipped from "MARKER_P1" to "MARKER_P2" and vice versa. If a cell contains no marker, it remains unchanged.
+
+### Alignement Detection:
+
+### Alignement Selection:
 
 ## Network
 
 # License
 
 This project is licensed under the GNU General Public License. For more details, see the [`LICENSE`](../LICENSE) file.
-
