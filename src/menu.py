@@ -9,6 +9,10 @@ from src.game import Game
 from src.utilities import Utilities 
 import random
 import json
+import threading
+from socket import gethostbyname, gethostname
+from src.server import Server
+from src.scan import scan_network
 
 class Introduction: 
 
@@ -41,7 +45,6 @@ class Introduction:
         self.arrow, self.arrow_rect = self.assets['arrow']
 
         self.fade_surface = pygame.Surface((self.width, self.height))
-
         self.moglogo_faded = False
         self.smartgameslogo_faded = False
 
@@ -52,7 +55,14 @@ class Introduction:
         self.second_music = 'assets/audio/piano-loop-2.mp3'
         self.third_music = 'assets/audio/piano-loop-3.mp3'
 
+        self.select_online_mode = Menus().select_online_mode
         self.victory_screen = Menus().victory_screen
+
+        with open('settings.json', 'r') as f:
+            settings = json.load(f)
+
+        self.music_volume = settings['volumes']['music']
+        self.sfx_volume = settings['volumes']['sfx']
 
     def intro(self) -> None:
         screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN | pygame.SCALED)        
@@ -108,15 +118,21 @@ class Menus:
         self.frame = cv2.VideoCapture('assets/graphics/background/menu.mp4')
 
         self.hover_path = 'assets/audio/hover.mp3'
+        self.hover_sound = pygame.mixer.Sound(self.hover_path)
 
-    def random_music(self) -> None:
-        music = random.choice([self.first_music, self.second_music, self.third_music])
-        pygame.mixer.music.load(music)
+        self.first_music = 'assets/audio/piano-loop-1.mp3'
+        self.second_music = 'assets/audio/piano-loop-2.mp3'
+        self.third_music = 'assets/audio/piano-loop-3.mp3'
+
         with open('settings.json', 'r') as f:
             settings = json.load(f)
         
         self.music_volume = settings['volumes']['music']
         self.sfx_volume = settings['volumes']['sfx']
+
+    def random_music(self) -> None:
+        music = random.choice([self.first_music, self.second_music, self.third_music])
+        pygame.mixer.music.load(music)
         pygame.mixer.music.set_volume(self.music_volume)
         pygame.mixer.music.play(-1)
 
@@ -357,8 +373,7 @@ class Menus:
                             self.victory_screen(screen, video_path, self.winner, "AI", mode)
                         return
                     elif online_button_rect.collidepoint(event.pos):
-                        online_mode = self.select_online_mode(self, screen, video_path, mode, "Online")
-                        self.select_online_mode(self, screen, video_path, mode, online_mode)
+                        self.select_online_mode(screen, video_path, mode)
                         return
                     elif local_button_rect.collidepoint(event.pos):
                         self.winner = Game("Local", mode).run(screen)
@@ -366,7 +381,7 @@ class Menus:
                             self.victory_screen(screen, video_path, self.winner, "Local", mode)
                         return
                     
-    def select_online_mode(self, screen: pygame.Surface, video_path: str, mode: str, online_mode: str) -> str:
+    def select_online_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> str:
         self.width, self.height
         fade_surface = pygame.Surface((self.width, self.height))
         cap = cv2.VideoCapture(video_path)
@@ -434,10 +449,10 @@ class Menus:
                         Menus.select_mode_type(self, screen, video_path, mode) 
                         return
                     elif self.host_button_rect.collidepoint(event.pos):
-                        Menus.host_mode(self, screen, video_path, mode, online_mode)
+                        self.host_mode(screen, mode)
                         return
                     elif self.join_button_rect.collidepoint(event.pos):
-                        Menus.join_mode(self, screen, video_path, mode, online_mode)
+                        self.join_mode(screen, video_path, mode)
                         return
 
     def draw_text(screen, text: str, rect: pygame.Rect, font: pygame.freetype.Font, color: tuple, center: bool = True):
@@ -449,96 +464,12 @@ class Menus:
             text_rect.centery = rect.centery
         screen.blit(text_surf, text_rect)
 
-    def host_mode(self, screen: pygame.Surface, video_path: str, mode: str, online_mode: str) -> None:
-        width, height = 1920, 1080
+    def host_mode(self, screen: pygame.Surface, mode: str) -> None:
+        threading.Thread(target=Server().start_server, args=()).start()
+        Game("Online", mode, gethostbyname(gethostname())).run(screen)
 
-        cap = cv2.VideoCapture(video_path)
-        if not cap.isOpened():
-            print("Error: Could not open video.")
-            sys.exit()
-
-        cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 0)
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_delay = 1000 // int(fps) if fps != 0 else 100
-
-        self.yinshlogo, self.yinshlogo_rect
-        self.arrow, self.arrow_rect
-
-        self.yinshlogo_rect.topleft = (370, 90)
-        self.arrow_rect.topleft = (10, 10)
-
-        pygame.freetype.init()
-        font = pygame.freetype.SysFont(None, 24)
-
-        input_box_room = pygame.Rect(250, 400, 500, 50)
-        create_button = pygame.Rect(425, 600, 150, 50)
-        start_button = pygame.Rect(425, 600, 150, 50)
-
-        title_room_rect = pygame.Rect(250, 370, 500, 30)
-
-        input_active_room = True
-        input_text_room = ""
-        room_name = ""
-        show_teams = False
-
-        running = True
-        while running:
-            self.check_quit_event
-            ret, frame = cap.read()
-            if not ret:
-                cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 0)
-                continue
-
-            frame = cv2.resize(frame, (width, height))
-            video_surf = pygame.image.frombuffer(frame.tobytes(), frame.shape[1::-1], "BGR")
-
-            screen.blit(video_surf, (0, 0))
-            screen.blit(self.yinshlogo, self.yinshlogo_rect)
-            screen.blit(self.arrow, self.arrow_rect)
-
-            pygame.draw.rect(screen, (0, 0, 0), (175, 350, 750, 500))
-            pygame.draw.rect(screen, (255, 255, 255), (175, 350, 750, 500), 2)
-
-            if show_teams:
-                Menus.draw_text(screen, f"Room: {room_name}", pygame.Rect(200, 400, 500, 50), font, (255, 255, 255), center=False)
-            else:
-                Menus.draw_text(screen, "Gameroom's Name", title_room_rect, font, (255, 255, 255), center=False)
-
-                pygame.draw.rect(screen, (255, 255, 255), input_box_room, 2 if input_active_room else 1)
-                Menus.draw_text(screen, input_text_room, input_box_room, font, (255, 255, 255), center=False)
-
-                pygame.draw.rect(screen, (50, 50, 50), create_button)
-                Menus.draw_text(screen, "Create", create_button, font, (255, 255, 255))
-
-            pygame.display.update()
-            pygame.time.delay(frame_delay)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:
-                    if input_active_room:
-                        if event.key == pygame.K_RETURN:
-                            input_active_room = False
-                        elif event.key == pygame.K_BACKSPACE:
-                            input_text_room = input_text_room[:-1]
-                        else:
-                            input_text_room += event.unicode
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if input_box_room.collidepoint(event.pos):
-                        input_active_room = True
-                    elif create_button.collidepoint(event.pos):
-                        room_name = input_text_room
-                        input_text_room = ""  
-                        input_active_room = False
-                        show_teams = True
-                    elif self.arrow_rect.collidepoint(event.pos):
-                        Menus.select_online_mode(self, screen, video_path, mode, online_mode)
-                        return
-
-    def join_mode(self, screen: pygame.Surface, video_path: str, mode: str, online_mode: str) -> None:
-        self.width, self.height
+    def join_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> None:
+        self.width, self.height = screen.get_size()
         fade_surface = pygame.Surface((self.width, self.height))
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
@@ -549,28 +480,22 @@ class Menus:
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_delay = 1000 // int(fps) if fps != 0 else 100
 
-        self.yinshlogo, self.yinshlogo_rect
+        self.yinshlogo, self.yinshlogo_rect 
         self.arrow, self.arrow_rect
 
-        self.yinshlogo_rect.topleft = (370, 90)
-        self.arrow_rect.topleft = (10, 10)
-
-        ip_addresses = [{
-            "ip": f"{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
-            "member": f"{random.randint(1, 2)}/2"
-        } for _ in range(20)]
+        # ip_addresses = scan_network()
+        ip_addresses = ["192.168.0.1", "192.168.0.2", "192.168.0.3", "192.168.0.4", "192.168.0.1", "192.168.0.2", "192.168.0.3", "192.168.0.4"]
 
         ip_font = pygame.font.Font(None, 36)
         ip_rect = pygame.Rect(175, 350, 750, 500)
         scroll_offset = 0
 
-        col_headers = ["Gamehost (IP)", "Member"]
-        col_count = len(col_headers)
-        col_width = ip_rect.width // col_count
+        col_headers = ["Gamehost (IP)"]
+        col_width = ip_rect.width
 
         running = True
         while running:
-            self.check_quit_event
+            self.check_quit_event()
             ret, frame = cap.read()
             if not ret:
                 cap.set(cv2.CAP_PROP_POS_AVI_RATIO, 0)
@@ -584,30 +509,19 @@ class Menus:
             screen.blit(self.arrow, self.arrow_rect)
             pygame.draw.rect(screen, (0, 0, 0), ip_rect)
 
-            y = ip_rect.top + 10
-            for i, header in enumerate(col_headers):
-                header_surf = ip_font.render(header, True, (255, 255, 255))
-                header_pos = header_surf.get_rect(topleft=(ip_rect.left + i * col_width + 10, y))
-                screen.blit(header_surf, header_pos)
+            ip_surf = pygame.Surface((col_width, len(ip_addresses) * 40))
+            ip_surf.fill((0, 0, 0))
+            ip_surf.set_alpha(200)
+            screen.blit(ip_surf, ip_rect.topleft)
 
-            y_start = y + ip_font.get_height() + 10 - scroll_offset
-            for idx, details in enumerate(ip_addresses):
-                y = y_start + idx * (ip_font.get_height() + 10)
-                if ip_rect.top + ip_font.get_height() + 20 <= y <= ip_rect.bottom - (ip_font.get_height() + 10):
-                    ip_pos = (ip_rect.left + 10, y)
-                    member_pos = (ip_rect.left + 10 + col_width, y)
+            left_padding = 300
+            vertical_padding = 20
+            top_padding = 50
 
-                    ip_surf = ip_font.render(details["ip"], True, (255, 255, 255))
-                    screen.blit(ip_surf, ip_pos)
-
-                    member_surf = ip_font.render(details["member"], True, (255, 255, 255))
-                    screen.blit(member_surf, member_pos)
-
-            content_height = len(ip_addresses) * (ip_font.get_height() + 10)
-            if content_height > ip_rect.height:
-                scrollbar_height = max(10, ip_rect.height * ip_rect.height // content_height)
-                scrollbar_pos = min(ip_rect.bottom - scrollbar_height, ip_rect.top + scroll_offset * ip_rect.height // content_height)
-                pygame.draw.rect(screen, (200, 200, 200), (ip_rect.right - 20, scrollbar_pos, 10, scrollbar_height))
+            for index, ip in enumerate(ip_addresses):
+                ip_text = ip_font.render("Room "+ str(index+1), True, (255, 255, 255))
+                ip_pos = ip_rect.topleft[0] + left_padding, ip_rect.topleft[1] + vertical_padding + top_padding + index * 40 - scroll_offset
+                screen.blit(ip_text, ip_pos)
 
             pygame.display.update()
             pygame.time.delay(frame_delay)
@@ -618,11 +532,12 @@ class Menus:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.arrow_rect.collidepoint(event.pos):
-                        return
-                elif event.type == pygame.MOUSEWHEEL:
-                    scroll_offset -= event.y * 20
-                    max_offset = max(0, content_height - ip_rect.height + 20)
-                    scroll_offset = max(0, min(scroll_offset, max_offset))
+                        self.select_online_mode(screen, video_path, mode)
+                    for index, ip in enumerate(ip_addresses):
+                        ip_pos = ip_rect.topleft[0], ip_rect.topleft[1] + index * 40
+                        ip_text_rect = pygame.Rect(ip_pos, (col_width, 40))
+                        if ip_text_rect.collidepoint(event.pos):
+                            Game("Online", mode, ip).run(screen)
 
                 
     def victory_screen(self, screen: pygame.Surface, video_path: str, winner: str, gamemode: str, difficulty: str) -> None:

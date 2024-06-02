@@ -7,7 +7,7 @@ import cv2
 from src.resizing import Resizer
 from src.utilities import Utilities
 
-def load_assets():
+def load_assets() -> dict:
     resizer = Resizer(1920, 1080)
     return resizer.load_assets()
 
@@ -30,30 +30,30 @@ class Settings:
 
         self.check_quit_event = Utilities().check_quit_event
 
-    def initialize_pygame(self):
+    def initialize_pygame(self) -> None:
         pygame.freetype.init()
         self.clock = pygame.time.Clock()
         self.FPS = 60
 
-    def get_current_screen_mode(self):
+    def get_current_screen_mode(self) -> str:
         display_info = pygame.display.Info()
         if self.screen.get_flags() & pygame.FULLSCREEN:
             return 'Fullscreen'
         else:
             return 'Windowed Fullscreen'
 
-    def setup_ui(self):
-        self.manager = pygame_gui.UIManager(self.screen.get_size()) # what is this line doing? --> This line is creating a user interface manager to handle the UI elements.
+    def setup_ui(self) -> None:
+        self.manager = pygame_gui.UIManager(self.screen.get_size()) 
         self.font = pygame.freetype.Font("./assets/font/04B.TTF", 36)
         dropdown_x = self.area_rect[0] + (self.area_rect[2] - 200) // 2 
         self.resolution_dropdown = pygame_gui.elements.UIDropDownMenu(
             options_list=['Windowed Fullscreen', 'Fullscreen'],
             starting_option=self.current_mode,
-            relative_rect=pygame.Rect((dropdown_x, self.area_rect[1] + self.area_rect[3] - 80), (200, 30)), # what is this line doing? --> This line is creating a dropdown menu for the user to select the screen mode.
+            relative_rect=pygame.Rect((dropdown_x, self.area_rect[1] + self.area_rect[3] - 80), (200, 30)), 
             manager=self.manager
         )
 
-    def load_icons(self):
+    def load_icons(self) -> None:
         assets = load_assets()
         self.sound_on_image = assets['sound_on'][0]
         self.sound_off_image = assets['sound_off'][0]
@@ -64,7 +64,7 @@ class Settings:
         self.cross_image = pygame.transform.scale(self.cross_image, self.icon_size)  
         self.cross_rect = self.cross_image.get_rect(topright=(self.area_rect[0] + self.area_rect[2] - 10, self.area_rect[1] + 10)) 
 
-    def initialize_volumes(self):
+    def initialize_volumes(self) -> None:
         self.volumes = self.load_settings().get('volumes', {'music': 0.5, 'sfx': 0.5})
         self.prev_volumes = self.volumes.copy()
         self.icon_states = {key: 'on' if self.volumes[key] > 0 else 'off' for key in self.volumes.keys()}
@@ -80,7 +80,7 @@ class Settings:
         self.dragging_slider = None
         self.running = True
 
-    def draw_slider(self, screen, pos, value, label, icon_state):
+    def draw_slider(self, screen: pygame.Surface, pos: tuple[int, int], value: float, label: str, icon_state: str) -> None:
         start_pos = (pos[0], pos[1] + self.knob_radius)
         end_pos = (pos[0] + self.slider_length, pos[1] + self.knob_radius)
         pygame.draw.line(screen, self.slider_color, start_pos, end_pos, 2)
@@ -91,7 +91,7 @@ class Settings:
         sound_image = self.sound_on_image if icon_state == 'on' else self.sound_off_image
         screen.blit(sound_image, (pos[0] - self.icon_size[0] - 10, pos[1] + self.knob_radius - self.icon_size[1] // 2))
 
-    def toggle_volume(self, category):
+    def toggle_volume(self, category: str) -> None:
         actions = {
             'music': lambda: self.update_volume('music'),
             'sfx': lambda: self.update_volume('sfx')
@@ -99,7 +99,7 @@ class Settings:
         action = actions.get(category, lambda: None)
         action()
 
-    def update_volume(self, category):
+    def update_volume(self, category: str) -> None:
         update_actions = {
             'music': lambda: self.set_volume('music', pygame.mixer.music.set_volume),
             'sfx': lambda: self.set_volume('sfx', lambda v: pygame.mixer.set_num_channels(int(32 * v)))
@@ -108,7 +108,7 @@ class Settings:
         action()
         self.save_settings()
 
-    def set_volume(self, category, set_func):
+    def set_volume(self, category: str, set_func) -> None:
         if self.volumes[category] > 0:
             self.prev_volumes[category] = self.volumes[category]
             self.volumes[category] = 0
@@ -119,7 +119,7 @@ class Settings:
         set_func(self.volumes[category])
         self.save_settings()
 
-    def load_settings(self):
+    def load_settings(self) -> dict:
         try:
             with open(self.settings_file, 'r') as f:
                 return json.load(f)
@@ -129,12 +129,12 @@ class Settings:
                 json.dump(default_settings, f)
             return default_settings
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         settings = {'volumes': self.volumes}
         with open(self.settings_file, 'w') as f:
             json.dump(settings, f)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         event_handlers = {
             pygame.QUIT: self.quit_game,
             pygame.MOUSEBUTTONDOWN: self.handle_mousebuttondown,
@@ -145,10 +145,10 @@ class Settings:
         handler = event_handlers.get(event.type, lambda x: None)
         handler(event)
 
-    def quit_game(self, event):
+    def quit_game(self, event: pygame.event.Event) -> None:
         self.running = False
 
-    def handle_mousebuttondown(self, event):
+    def handle_mousebuttondown(self, event: pygame.event.Event) -> None:
         mouse_x, mouse_y = event.pos
         if self.cross_rect.collidepoint(mouse_x, mouse_y):  
             self.save_settings()
@@ -161,7 +161,7 @@ class Settings:
             if pos[0] - self.icon_size[0] - 10 <= mouse_x <= pos[0] - 10 and pos[1] <= mouse_y <= pos[1] + self.icon_size[1]:
                 self.toggle_volume(category)
 
-    def handle_mousemotion(self, event):
+    def handle_mousemotion(self, event: pygame.event.Event) -> None:
         if self.dragging_slider:
             mouse_x, _ = event.pos
             update_actions = {
@@ -171,7 +171,7 @@ class Settings:
             action = update_actions.get(self.dragging_slider, lambda: None)
             action()
 
-    def update_slider(self, category, mouse_x):
+    def update_slider(self, category: str, mouse_x: int) -> None:
         self.volumes[category] = max(0, min(1, (mouse_x - self.slider_positions[category][0]) / self.slider_length))
         if category == 'music':
             pygame.mixer.music.set_volume(self.volumes[category])
@@ -180,10 +180,10 @@ class Settings:
         self.icon_states[category] = 'off' if self.volumes[category] == 0 else 'on'
         self.save_settings()
 
-    def handle_mousebuttonup(self, event):
+    def handle_mousebuttonup(self, event: pygame.event.Event) -> None:
         self.dragging_slider = None
 
-    def handle_userevent(self, event):
+    def handle_userevent(self, event: pygame.event.Event) -> None:
         if event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED and event.ui_element == self.resolution_dropdown:
             screen_modes = {
                 'Fullscreen': pygame.FULLSCREEN | pygame.SCALED,
@@ -195,7 +195,7 @@ class Settings:
                 screen_mode = screen_modes.get(selected_mode, pygame.FULLSCREEN | pygame.SCALED)
                 self.screen = pygame.display.set_mode(self.screen.get_size(), screen_mode)
 
-    def run(self, screen, video_path):
+    def run(self, screen: pygame.Surface, video_path: str) -> None:
             self.width, self.height
             cap = cv2.VideoCapture(video_path)
             if not cap.isOpened():
@@ -243,5 +243,5 @@ class Settings:
                 pygame.display.update()
                 pygame.time.delay(frame_delay)
 
-def launch_volume_control(screen, area_rect, settings_file, video_path):
+def launch_volume_control(screen: pygame.Surface, area_rect: tuple[int, int, int, int], settings_file: str, video_path: str) -> None:
     Settings(screen, area_rect, settings_file, video_path).run(screen, video_path)
