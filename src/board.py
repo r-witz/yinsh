@@ -220,17 +220,18 @@ class Board:
         markers = [self.board[i][j].marker for i, j in line if self.board[i][j] is not None]
         return len(markers) == 5 and markers.count(marker) == 5
 
-    def check_win(self, player) -> str:
+    def check_win(self, player_name: str) -> list[list[tuple[int, int]]]:
         """
         Check if a player has won the game.
-        :return: str, Name of the player who has won the game, or None if no player has won yet.
+        :param player: str, Name of the player to check the win for.
+        :return: list[list[tuple(int, int)]], List of lines on which the player has made an alignement.
         """
-        player = "MARKER_P" + player[-1]
+        player_marker = "MARKER_P" + player_name[-1]
         lines = self.lines_to_check()
         aligned_lines = []
 
         for line in lines:
-            if self.check_line_win(line, player):
+            if self.check_line_win(line, player_marker):
                 aligned_lines.append(line)
         return None if len(aligned_lines) == 0 else aligned_lines
 
