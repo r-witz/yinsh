@@ -1,6 +1,0 @@
-T'as une liste d'addresses ip sous formes de string
-
-tu veux afficher une ip par ligne
-
-et quand on cliques sur l'ip ça doit pouvoir l'afficher en console (temporaire)
-en gros faut pouvoir récup l'ip au click

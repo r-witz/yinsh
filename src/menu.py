@@ -483,8 +483,7 @@ class Menus:
         self.yinshlogo, self.yinshlogo_rect 
         self.arrow, self.arrow_rect
 
-        # ip_addresses = scan_network()
-        ip_addresses = ["192.168.0.1", "192.168.0.2", "192.168.0.3", "192.168.0.4", "192.168.0.1", "192.168.0.2", "192.168.0.3", "192.168.0.4"]
+        ip_addresses = scan_network()
 
         ip_font = pygame.font.Font(None, 36)
         ip_rect = pygame.Rect(175, 350, 750, 500)
