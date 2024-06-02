@@ -80,25 +80,32 @@ These instructions will give you the basic knowledge about the project organisat
 ```bash
 yinsh/
 │
-├── assets/                      # Folder for storing game's assets
-│   ├── audio/                   # Game audio
-│   ├── fonts/                   # Game fonts
-│   └── graphics/                # Other assets (i.e. images, video)
-├── docs/                        # Folder for documentation files
-│   ├── technical_manual.md      # Technical documentation
-│   └── user_guide.md            # User manual
-├── src/                         # Source code directory
-│   ├── board.py                 # Game board logic and operations
+├── assets/                      # Folder for storing game's assets.
+│   ├── audio/                   # Game audio.
+│   ├── fonts/                   # Game fonts.
+│   └── graphics/                # Other assets (i.e. images, video).
+├── docs/                        # Folder for documentation files.
+├── ├── technical_manual.pdf     # Technical documentation in pdf version.
+├── ├── user_manual.pdf      	 # User manual in pdf version.
+│   ├── technical_manual.md      # Technical documentation.
+│   └── user_manual.md           # User manual.
+├── src/                         # Source code directory.
+│   ├── menu.py					 # The file used for the intro and managing menus.
+│   ├── resizing.py				 # Contain some resizing utilities.
+│   ├── settings.py				 # Manages the settings window.
+│   ├── utilities.py			 # Utilities for menus.
+│   ├── board.py                 # Game board logic and operations.
 │   ├── game.py                  # Controls game flow, rules, and victory.
 │   ├── hexagon.py               # Properties and behaviors of hexagons in board.
 │   ├── player.py                # Player properties, and methods.
 │   ├── server.py                # Sets up and manages the game server.
+│   ├── scan.py					 # Scan the network to find running servers.
 │   └── client.py                # Sets up and manages the game client.
-├── main.py                      # Program used to launch game
-├── requirements.txt             # Libraries required
-├── .gitignore                   # Files to ignore when commiting
-├── LICENSE                      # Project's License
-└── README.md                    # Describe the project and how to install
+├── main.py                      # Program used to launch game.
+├── requirements.txt             # Libraries required.
+├── .gitignore                   # Files to ignore when commiting.
+├── LICENSE                      # Project's License.
+└── README.md                    # Describe the project and how to install.
 ```
 
 > To maintain the project, you should have a basic understanding of Python and Pygame. You should also be familiar with the project structure and the codebase.
