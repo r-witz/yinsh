@@ -221,7 +221,45 @@ The ring movement algorithm in the game involves several key steps: selecting a 
 
 ### Alignement Detection:
 
+In the game of Yinsh, an alignment occurs when a player successfully lines up five of their markers (rings or markers) either horizontally, vertically, or diagonally. The alignment detection algorithm is responsible for identifying these alignments on the game board. Here's how the algorithm works:
+
+1. **Defining Alignments to Check:**<br>
+   The algorithm begins by defining the various lines on the board that could potentially contain alignments. These lines include horizontal, vertical, and diagonal lines. The [`lines_to_check`](../src/board.py) method in the Board class generates all possible lines on the board where alignments could occur.
+
+2. **Iterating Through Lines:**<br>
+   Once the lines to check are defined, the algorithm iterates through each line to determine if an alignment exists. For each line, it checks if there are five consecutive markers of the same player. If such a sequence is found, it signifies an alignment.
+
+3. **Checking Line Win:**<br>
+   The [`check_line_win`](../src/board.py) method in the Board class is responsible for checking if a particular line contains an alignment of five markers belonging to the same player. It iterates through the cells in the line, counting the number of markers belonging to the player. If the count reaches five, it indicates a win.
+
+4. **Identifying Aligned Lines:**<br>
+   As the algorithm iterates through each line, it keeps track of any lines where an alignment is detected. If an alignment is found, the line is added to a list of aligned lines.
+
+5. **Returning Aligned Lines:**<br>
+   Once all lines have been checked, the algorithm returns the list of aligned lines. These aligned lines represent the locations on the board where a player has successfully created an alignment of five markers.
+
+6. **Determining the Winner:**<br>
+   The aligned lines can be used to determine if a player has won the game. If a player has at least one alignment, they are declared the winner in Blitz mode, and in Normal mode, the player needs at least three alignements. Otherwise, the game continues until a winner is determined or the board is filled, resulting in a loss for the first player that can't move the selected ring.
+
+By systematically checking each line on the board, the alignment detection algorithm accurately identifies alignments, allowing the game to progress and determine the winner based on these alignments.
+
 ### Alignement Selection:
+
+In the game of Yinsh, if multiple alignments are made by a player, the player is allowed to choose which alignment they want to remove. The alignment selection algorithm facilitates this process by enabling the player to hover over potential alignments and preview them before making a decision. Here's how the algorithm works:
+
+1. **Identifying Potential Alignments:**<br>
+	The [`get_possible_alignement`](../src/game.py) method first determines if the hexagon being hovered over is part of any alignments. It does this by checking if the coordinates of the hexagon match any of the coordinates within the aligned lines detected by the alignment detection algorithm.
+
+2. **Handling Multiple Alignments:**<br>
+   If the hexagon is part of multiple alignments, the method evaluates each alignment to determine which one to prioritize for preview. It considers factors such as the proximity of the hexagon to the center of each alignment and the direction of the alignment.
+
+3. **Returning the Selected Alignment:**<br>
+   Once the alignment is selected, the method returns the coordinates of the cells involved in that alignment. These coordinates are then used to draw the alignment preview on the game board, allowing the player to visualize the potential consequences of their actions.
+
+4. **Player Interaction:**<br>
+   Throughout this process, the method ensures that the player's interaction with the game remains intuitive and responsive. It provides real-time feedback based on the player's mouse movements, updating the alignment preview as the player hovers over different hexagons on the board.
+
+By effectively prioritizing alignments and providing clear visual previews, the [`get_possible_alignement`](../src/game.py) method enhances the player's understanding of the game state and facilitates strategic decision-making during gameplay.
 
 ## Network
 
