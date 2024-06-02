@@ -8,10 +8,23 @@ This project is a Python adaptation of the board game Yinsh. Yinsh is an abstrac
 1. [YINSH](#yinsh)
 2. [Technologies Used](#technologies-used)
 3. [Getting Started](#getting-started)
+	- [Prerequisites](#prerequisites)
+	- [Launching the Project](#launching-the-project)
 4. [Maintaining the Project](#maintaining-the-project)
-5. [License](#license)
+	- [File organisations](#file-organisations)
+	- [Python Coding Style](#python-coding-style)
+	- [Contributing GIT Guidelines](#contributing-git-guidelines)
+5. [Code Structure](#code-structure)
+	- [Class Diagram](#class-diagram)
+	- [Algorithms Used](#algorithms-used)
+		- [Hexagonal Grid Management](#hexagonal-grid-management)
+		- [Ring Movement](#ring-movement)
+		- [Alignement Detection](#alignement-detection)
+		- [Alignement Selection](#alignement-selection)
+	- [Network](#network)
+6. [License](#license)
 
-## Technologies Used
+# Technologies Used
 
 In this project, we have chosen Python as the primary language for the implementation. We had envisaged to choose the C programming language for this project but it has mainly not been used because of the compatibility complexity with multiple platforms as well as the code complexity which was increased compared to Python. The decision to use Python was based on several factors, including:
 
@@ -25,11 +38,11 @@ Additionally, we have chosen to utilize Pygame as a key library for this project
 
 > By selecting **Python** and **Pygame**, we aim to achieve a balance between performance, maintainability, and ease of development, ensuring a successful implementation of our project.
 
-## Getting Started
+# Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites
+## Prerequisites
 
 - Python 3.11+
 
@@ -38,7 +51,7 @@ Once Python installed run the following command to install both dependencies
 pip install -r .\requirements.txt
 ```
 
-### Launching the Project
+## Launching the Project
 
 1. Clone the repository to your local machine.
 ```sh
@@ -55,11 +68,11 @@ cd yinsh
 python main.py
 ```
 
-## Maintaining the Project
+# Maintaining the Project
 
 These instructions will give you the basic knowledge about the project organisation, so you can maintain or understand it.
 
-### File organisations
+## File organisations
 
 ```bash
 yinsh/
@@ -87,7 +100,7 @@ yinsh/
 
 > To maintain the project, you should have a basic understanding of Python and Pygame. You should also be familiar with the project structure and the codebase.
 
-### Python Coding Style
+## Python Coding Style
 
 **Variable Naming:**
 
@@ -121,7 +134,7 @@ def calculate_score(player_turn: int, game_state: dict[str, list[int]], multipli
 	# Function implementation goes here
 ```
 
-### Contributing GIT Guidelines
+## Contributing GIT Guidelines
 
 Contributors are encouraged to adhere to the following guidelines when contributing to the project.
 
@@ -148,19 +161,31 @@ Add "!" at the end of the keyword to denote a breaking change (e.g., `feat!`, `f
 - refactor(game): Refactor game logic for improved performance
 - chore!(deps): Update dependencies to latest versions
 
-## Code Structure
+# Code Structure
 
-> If you wish to know more about data structures used throughout the whole project, you may refer directly to the code. <br>
+If you wish to know more about data structures used throughout the whole project, you may refer directly to the code. <br>
 All the classes, functions and methods are documented using type hinting and docstring, making it as simple as possible to understand the datatypes used.
 
-### Class Diagram
+## Class Diagram
 
 ![class diagram](../assets/graphics/github/class-diagram.png)
 
 > This class diagram is representing how the main game logic is made. <br>
 It will also help you understand how the classes interact with each others.
 
-## License
+## Algorithms Used
+
+### Hexagonal Grid Management
+
+### Ring Movement
+
+### Alignement Detection
+
+### Alignement Selection
+
+## Network
+
+# License
 
 This project is licensed under the GNU General Public License. For more details, see the [`LICENSE`](../LICENSE) file.
 
