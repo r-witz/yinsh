@@ -6,7 +6,7 @@ load_dotenv()
 def is_port_open(ip, port):
     """Check if the port is open on the given IP address."""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(0.1)  
+    s.settimeout(0.01)  
     try:
         s.connect((ip, port))
     except (socket.timeout, socket.error):
@@ -21,10 +21,7 @@ def scan_network_for_open_port(port, ip_range):
     for ip in ip_range:
         if is_port_open(ip, port):
             open_ips.append(ip)
-            print(f"Port {port} is open on {ip}")
     return open_ips
-
-""" Define the range of IPs to scan (example: 192.168.1.0 to 192.168.1.255) """
 
 def generate_ip_range(start_ip, end_ip):
     start = list(map(int, start_ip.split('.')))
@@ -43,16 +40,36 @@ def generate_ip_range(start_ip, end_ip):
     
     return ip_range
 
-if __name__ == "__main__":
-    
+def get_local_ip_address():
+    """Get the local IP address of the machine."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        ip_address = s.getsockname()[0]
+    except Exception as e:
+        print(f"Error obtaining IP address: {e}")
+        ip_address = None
+    finally:
+        s.close()
+    return ip_address
+
+def calculate_class_c_ip_range(ip_address):
+    """Calculate the minimal and maximal IP addresses in a class C subnet."""
+    ip_parts = ip_address.split('.')
+    ip_parts[-1] = '0'
+    min_ip = '.'.join(ip_parts)
+    ip_parts[-1] = '255'
+    max_ip = '.'.join(ip_parts)
+    return min_ip, max_ip
+
+def scan_network():
+    """Scan the network for open ports."""
     port_to_scan = int(os.environ.get("PORT"))
-    start_ip = "192.168.1.0"
-    end_ip = "192.168.1.255"
-    
-    ip_range = generate_ip_range(start_ip, end_ip)
+    ip = get_local_ip_address()
+    min_ip, max_ip = calculate_class_c_ip_range(ip)
+    ip_range = generate_ip_range(min_ip, max_ip)
     open_ips = scan_network_for_open_port(port_to_scan, ip_range)
-    
-    if open_ips:
-        print(f"Machines with port {port_to_scan} open: {open_ips}")
-    else:
-        print(f"No machines found with port {port_to_scan} open in the given range.")
+    return open_ips
+
+if __name__ == "__main__":
+    scan_network()
