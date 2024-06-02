@@ -37,6 +37,7 @@ class Server:
                             "rings_placed": False,
                             "p1_alignement": "0",
                             "p2_alignement": "0",
+                            "alignement_to_win": "3"
                             }
 
         self.players = {'Player1': None, 'Player2': None}

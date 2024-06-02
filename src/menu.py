@@ -464,12 +464,13 @@ class Menus:
         screen.blit(text_surf, text_rect)
 
     def host_mode(self, screen: pygame.Surface, mode: str) -> None:
-        thread = threading.Thread(target=Server().start_server, args=()).start()
+        thread = thread = threading.Thread(target=Server().start_server, args=())
+        thread.start()
         Game("Online", mode, gethostbyname(gethostname())).run(screen)
+        thread.kill()
 
     def join_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> None:
         self.width, self.height = screen.get_size()
-        fade_surface = pygame.Surface((self.width, self.height))
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             print("Error: Could not open video.")

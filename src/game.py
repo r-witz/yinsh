@@ -43,6 +43,9 @@ class Game:
 
         self.load_images()
 
+        if Client:
+            self.send_game_infos()
+
     def load_images(self) -> None:
         """
         Load the images for the game
@@ -524,6 +527,7 @@ class Game:
         self.rings_placed = response["rings_placed"]
         self.p1.alignment = int(response['p1_alignement'])
         self.p2.alignment = int(response['p2_alignement'])
+        self.alignement_to_win = int(response['alignement_to_win'])
 
     def format_game_infos(self) -> dict:
         """
@@ -539,6 +543,7 @@ class Game:
             'rings_placed': self.rings_placed,
             'p1_alignement': self.p1.alignment,
             'p2_alignement': self.p2.alignment,
+            'alignement_to_win': self.alignement_to_win
         }
 
     def send_game_infos(self):
