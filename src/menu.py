@@ -373,8 +373,7 @@ class Menus:
                             self.victory_screen(screen, video_path, self.winner, "AI", mode)
                         return
                     elif online_button_rect.collidepoint(event.pos):
-                        self.select_online_mode(screen, video_path, mode)
-                        return
+                        self.winner = self.select_online_mode(screen, video_path, mode)
                     elif local_button_rect.collidepoint(event.pos):
                         self.winner = Game("Local", mode).run(screen)
                         if self.winner != "Menu":
@@ -465,8 +464,9 @@ class Menus:
         screen.blit(text_surf, text_rect)
 
     def host_mode(self, screen: pygame.Surface, mode: str) -> None:
-        threading.Thread(target=Server().start_server, args=()).start()
-        Game("Online", mode, gethostbyname(gethostname())).run(screen)
+        thread = threading.Thread(target=Server().start_server, args=()).start()
+        winner = Game("Online", mode, gethostbyname(gethostname())).run(screen)
+        thread.kill()
 
     def join_mode(self, screen: pygame.Surface, video_path: str, mode: str) -> None:
         self.width, self.height = screen.get_size()
@@ -517,10 +517,22 @@ class Menus:
             vertical_padding = 20
             top_padding = 50
 
+            cursor_over_ip = False
+
             for index, ip in enumerate(ip_addresses):
-                ip_text = ip_font.render("Room "+ str(index+1), True, (255, 255, 255))
+                ip_text = ip_font.render("Room " + str(index+1), True, (255, 255, 255))
                 ip_pos = ip_rect.topleft[0] + left_padding, ip_rect.topleft[1] + vertical_padding + top_padding + index * 40 - scroll_offset
                 screen.blit(ip_text, ip_pos)
+
+                # Check if cursor is over this IP text
+                ip_text_rect = pygame.Rect(ip_pos, (col_width, 40))
+                if ip_text_rect.collidepoint(pygame.mouse.get_pos()):
+                    cursor_over_ip = True
+
+            if cursor_over_ip:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+            else:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
             pygame.display.update()
             pygame.time.delay(frame_delay)
@@ -537,7 +549,6 @@ class Menus:
                         ip_text_rect = pygame.Rect(ip_pos, (col_width, 40))
                         if ip_text_rect.collidepoint(event.pos):
                             Game("Online", mode, ip).run(screen)
-
                 
     def victory_screen(self, screen: pygame.Surface, video_path: str, winner: str, gamemode: str, difficulty: str) -> None:
         self.width, self.height
