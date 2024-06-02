@@ -22,6 +22,9 @@ This project is a Python adaptation of the board game Yinsh. Yinsh is an abstrac
 		- [Alignement Detection](#alignement-detection)
 		- [Alignement Selection](#alignement-selection)
 	- [Network](#network)
+		- [Server](#server)
+		- [Client](#client)
+		- [Data Exchange Format](#data-exchange-format)
 6. [License](#license)
 
 # Technologies Used
@@ -188,7 +191,7 @@ The hexagonal grid management in the game involves initializing a hexagonal grid
 <br>For more information go see the `draw_board` method in the [`board.py`](../src/board.py) file
 
 ![yinsh board hexagonal hitboxes backend](../assets/graphics/github/yinsh_board_hitbox_backend.png)
-> You can here see how the grid is represented in backend. The red hexagons represented None types in the board, this means the tile is not an Hexagon, it is just here to space the rest of the board tiles. The white hexagons are the one actually clickable and are Hexagon types.
+> You can here see how the grid is represented in backend. The red hexagons represent None types in the board, this means the tile is not an Hexagon, it is just here to space the rest of the board tiles. The white hexagons are the one actually clickable and are Hexagon types.
 
 ### Ring Movement:
 
@@ -202,8 +205,8 @@ The ring movement algorithm in the game involves several key steps: selecting a 
 
 2. **Determining Valid Moves:**<br>
         Once a ring is selected, the game calculates all the valid cells where the ring can be moved. This is achieved using the [`valid_moves`](../src/board.py) method in the Board class.
-        The [`valid_moves`](../src/board.py) method relies on the `get_lines` method to identify all potential paths (vertical, horizontal, and diagonal) from the ring's current position. It ensures that rings cannot jump over other rings and must move through empty cells.
-        The `get_lines` method generates all possible lines originating from the current position of the ring, considering the hexagonal grid's geometry.
+        The [`valid_moves`](../src/board.py) method relies on the [`get_lines`](../src/board.py) method to identify all potential paths (vertical, horizontal, and diagonal) from the ring's current position. It ensures that rings cannot jump over other rings and must move through empty cells.
+        The [`get_lines`](../src/board.py) method generates all possible lines originating from the current position of the ring, considering the hexagonal grid's geometry.
         For each line, the algorithm checks the cells sequentially. If it encounters an empty cell, it is considered a valid move. If it encounters a ring, it stops further checking along that line.
 
 3. **Moving the Ring:**<br>
@@ -221,6 +224,52 @@ The ring movement algorithm in the game involves several key steps: selecting a 
 ### Alignement Selection:
 
 ## Network
+
+The network aspect of the project facilitates communication between the game server and clients, allowing two players to connect to the same game session and interact with each other in real-time.
+
+### Server
+
+The server, implemented in [`server.py`](../src/server.py), manages the game state and facilitates communication with the connected clients. Here's how it works:
+
+1. **Initialization**: Upon starting, the server initializes its state, including the game board, player information, and other game-related data.
+
+2. **Socket Binding**: The server creates a socket and binds it to a local address and port. This allows it to listen for incoming connections from clients.
+
+3. **Accepting Connections**: The server enters a loop where it continuously listens for incoming client connections. Once a client connects, the server accepts the connection and assigns it to a player slot (Player1 or Player2).
+
+4. **Handling Clients**: For each client connection, the server spawns a new thread ([`handle_client`](../src/server.py)) to handle communication with that client. This ensures that the server can handle multiple clients concurrently.
+
+5. **Client Communication**: The [`handle_client`](../src/server.py) function manages communication with each client. It receives requests from clients, processes them, updates the game state if necessary, and sends back responses.
+
+6. **Game State Management**: The server maintains the game state, including the current board configuration, player turns, ring positions, alignments, and other relevant data. It updates this state based on the requests received from clients.
+
+7. **Data Serialization**: To facilitate communication between the server and clients, data is serialized using JSON format. Requests and responses exchanged between the server and clients are encoded as JSON objects.
+
+### Client
+
+The client, implemented in [`client.py`](../src/client.py), represents a player connecting to the game server. Here's how it works:
+
+1. **Initialization**: Upon initialization, the client establishes a connection to the server using a socket. It specifies the server's address and port to connect to.
+
+2. **Fetching Game State**: The client can request the current game state from the server by sending a fetch request. This request includes the type of operation (fetch), and the server responds with the current game state, including the board configuration, player turns, and other relevant data.
+
+3. **Updating Game State**: The client can update the game state by sending a request to the server. This request includes the updated game state, and the server processes it, updating its internal state accordingly.
+
+4. **Handling Errors**: The client handles exceptions that may occur during communication with the server, such as network errors or invalid responses. It provides error handling mechanisms to ensure robustness and reliability.
+
+5. **Data Serialization**: Similar to the server, the client serializes data using JSON format for communication with the server. Requests and responses are encoded as JSON objects before being sent over the network.
+
+### Data Exchange Format
+
+The communication between the server and clients involves exchanging JSON-formatted data. Here's a brief overview of the key data exchanged:
+
+- **Request Format**: Requests sent from clients to the server typically include the type of operation (fetch or update) and any additional data required for the operation.
+
+- **Response Format**: Responses sent from the server to clients include the result of the operation (success or error) and any relevant data associated with the operation, such as the current game state.
+
+- **Game State Format**: The game state includes information about the current board configuration, player turns, ring positions, alignments, and other relevant data. This data is represented as a JSON object and exchanged between the server and clients during fetch and update operations.
+
+By using a standardized data exchange format and implementing robust communication mechanisms, the server and clients can effectively interact with each other, enabling seamless multiplayer gameplay.
 
 # License
 
