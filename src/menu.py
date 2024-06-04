@@ -328,6 +328,8 @@ class Menus:
 
         hover_sound = pygame.mixer.Sound(self.hover_path)
         last_hovered_button = None
+        
+        self.replay = True
 
         while True:
             ret, frame = cap.read()
