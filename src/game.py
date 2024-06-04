@@ -519,6 +519,7 @@ class Game:
             return
         
         response = self.client.fetch_game_state()
+        if response is None: return
         self.board.update_board(response["board"])
         self.player_to_play = self.p1 if response["current_player"] == "1" else self.p2
         self.winner = response["winner"]
