@@ -551,7 +551,7 @@ class Game:
         if self.client:
             game_state = self.format_game_infos()
             response = self.client.update_game_state(game_state)
-            if response['status'] == 'success':
+            if response is not None and response['status'] == 'success':
                 self.client.fetch_game_state()
             else:
                 print("Failed to send game info")
