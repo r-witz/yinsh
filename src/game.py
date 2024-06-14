@@ -550,11 +550,7 @@ class Game:
     def send_game_infos(self):
         if self.client:
             game_state = self.format_game_infos()
-            response = self.client.update_game_state(game_state)
-            if response is not None and response['status'] == 'success':
-                self.client.fetch_game_state()
-            else:
-                print("Failed to send game info")
+            self.client.update_game_state(game_state)
 
     def run(self, screen: pygame.Surface) -> None:
         """
