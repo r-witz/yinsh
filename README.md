@@ -32,8 +32,8 @@ This project is a Python adaptation of the board game Yinsh. Yinsh is an abstrac
 2. Follow the on-screen instructions to start a new game, load a saved game, or adjust settings.
 
 ## Documentation
-1. Get further documentation for user's [here](./docs/technical_manual.md)
-2. Take a look at our technical documentation [here](./docs/user_manual.md)
+1. Get further documentation for user's [here](./docs/user_manual.md)
+2. Take a look at our technical documentation [here](./docs/technical_manual.md)
 
 ## Contributing
 Contributions are welcome! If you'd like to contribute to this project, please fork the repository and submit a pull request with your proposed changes.
