@@ -7,9 +7,8 @@ This project is a Python adaptation of the board game Yinsh. Yinsh is an abstrac
 
 ## Features
 - **Interactive Gameplay:** Play against another human player or against an AI opponent.
-- **AI Opponent:** Includes an AI opponent with adjustable difficulty levels.
-- **Game State Management:** Save and load game state to continue matches later.
 - **User Interface:** A simple yet intuitive and retro user interface to facilitate gameplay.
+- **Online Games:** Play with your friends as long as you're on the same network.
 
 ## Installation
 1. Clone the repository:
@@ -31,6 +30,10 @@ This project is a Python adaptation of the board game Yinsh. Yinsh is an abstrac
    python main.py
    ```
 2. Follow the on-screen instructions to start a new game, load a saved game, or adjust settings.
+
+## Documentation
+1. Get further documentation for user's [here](./docs/technical_manual.md)
+2. Take a look at our technical documentation [here](./docs/user_manual.md)
 
 ## Contributing
 Contributions are welcome! If you'd like to contribute to this project, please fork the repository and submit a pull request with your proposed changes.
