@@ -63,7 +63,7 @@ cd yinsh
 
 3. Once Python installed run the following command to install both dependencies
 ```sh
-pip install -r .\requirements.txt
+pip install -r requirements.txt
 ```
 
 4. Run the main.py file to launch the project.
