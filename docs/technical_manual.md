@@ -90,16 +90,16 @@ yinsh/
 │   ├── technical_manual.md      # Technical documentation.
 │   └── user_manual.md           # User manual.
 ├── src/                         # Source code directory.
-│   ├── menu.py					 # The file used for the intro and managing menus.
-│   ├── resizing.py				 # Contain some resizing utilities.
-│   ├── settings.py				 # Manages the settings window.
-│   ├── utilities.py			 # Utilities for menus.
+│   ├── menu.py			 # The file used for the intro and managing menus.
+│   ├── resizing.py		 # Contain some resizing utilities.
+│   ├── settings.py		 # Manages the settings window.
+│   ├── utilities.py		 # Utilities for menus.
 │   ├── board.py                 # Game board logic and operations.
 │   ├── game.py                  # Controls game flow, rules, and victory.
 │   ├── hexagon.py               # Properties and behaviors of hexagons in board.
 │   ├── player.py                # Player properties, and methods.
 │   ├── server.py                # Sets up and manages the game server.
-│   ├── scan.py					 # Scan the network to find running servers.
+│   ├── scan.py			 # Scan the network to find running servers.
 │   └── client.py                # Sets up and manages the game client.
 ├── main.py                      # Program used to launch game.
 ├── requirements.txt             # Libraries required.
