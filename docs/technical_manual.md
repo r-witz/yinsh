@@ -49,11 +49,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 - Python 3.11+
 
-Once Python installed run the following command to install both dependencies
-```sh
-pip install -r .\requirements.txt
-```
-
 ## Launching the Project
 
 1. Clone the repository to your local machine.
@@ -66,7 +61,12 @@ git clone https://github.com/r-witz/yinsh.git
 cd yinsh
 ```
 
-3. Run the main.py file to launch the project.
+3. Once Python installed run the following command to install both dependencies
+```sh
+pip install -r .\requirements.txt
+```
+
+4. Run the main.py file to launch the project.
 ```sh
 python main.py
 ```
